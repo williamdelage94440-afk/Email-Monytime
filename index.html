@@ -1,509 +1,673 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Monytime – Prospection Email</title>
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Monytime" />
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
-      color: white;
-      padding: 24px 16px 48px;
-    }
-    .container { max-width: 680px; margin: 0 auto; }
-
-    /* Header */
-    .header { text-align: center; margin-bottom: 28px; }
-    .badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      border-radius: 14px; padding: 10px 18px; margin-bottom: 14px;
-      box-shadow: 0 8px 32px rgba(99,102,241,0.3);
-      font-weight: 700; font-size: 15px; letter-spacing: 1px;
-    }
-    h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
-    .subtitle { color: #94a3b8; font-size: 13px; }
-
-    /* Tabs */
-    .tabs {
-      display: flex; gap: 6px; margin-bottom: 20px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 12px; padding: 5px;
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-    .tab {
-      flex: 1; padding: 10px; border-radius: 8px; border: none;
-      font-weight: 700; font-size: 14px; cursor: pointer;
-      transition: all 0.2s;
-    }
-    .tab.active { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
-    .tab.inactive { background: transparent; color: #64748b; }
-
-    /* API Key banner */
-    .api-banner {
-      background: rgba(234,179,8,0.1); border: 1px solid rgba(234,179,8,0.3);
-      border-radius: 12px; padding: 14px 16px; margin-bottom: 20px;
-      font-size: 13px; color: #fbbf24;
-      display: flex; align-items: flex-start; gap: 10;
-    }
-    .api-banner input {
-      width: 100%; margin-top: 8px; background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(234,179,8,0.4); border-radius: 8px;
-      padding: 9px 12px; color: white; font-size: 13px; outline: none;
-      font-family: monospace;
-    }
-
-    /* Cards */
-    .card {
-      background: rgba(255,255,255,0.05); border-radius: 16px;
-      padding: 20px; border: 1px solid rgba(255,255,255,0.08);
-      margin-bottom: 16px;
-    }
-    .card-title {
-      font-size: 13px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 1px; color: #e2e8f0; margin-bottom: 14px;
-    }
-    label { color: #94a3b8; font-size: 13px; display: block; margin-bottom: 5px; margin-top: 10px; }
-    label:first-of-type { margin-top: 0; }
-    input, textarea {
-      width: 100%; background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
-      padding: 10px 13px; color: white; font-size: 14px; outline: none;
-      font-family: inherit;
-    }
-    textarea { resize: vertical; }
-
-    /* Grid buttons */
-    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .grid1 { display: flex; flex-direction: column; gap: 8px; }
-    .opt-btn {
-      padding: 11px 12px; border-radius: 10px; cursor: pointer;
-      font-size: 13px; font-weight: 600; transition: all 0.15s;
-      text-align: left; border: 2px solid rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.03); color: #94a3b8;
-    }
-    .opt-btn.selected {
-      border-color: #6366f1; background: rgba(99,102,241,0.2); color: #a5b4fc;
-    }
-    .tone-btn {
-      padding: 12px 14px; border-radius: 10px; cursor: pointer;
-      font-size: 13px; transition: all 0.15s; text-align: left;
-      border: 2px solid rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.03); color: white;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .tone-btn.selected { border-color: #6366f1; background: rgba(99,102,241,0.15); }
-    .tone-desc { color: #64748b; font-size: 12px; }
-
-    /* Collapsible */
-    .collapse-btn {
-      width: 100%; padding: 14px 20px; background: none; border: none;
-      color: #94a3b8; font-size: 14px; font-weight: 600; cursor: pointer;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .collapse-content { padding: 0 20px 20px; display: none; }
-    .collapse-content.open { display: block; }
-
-    /* Generate button */
-    .gen-btn {
-      width: 100%; padding: 15px; border: none; border-radius: 14px;
-      font-size: 16px; font-weight: 700; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 10px;
-      transition: all 0.2s; margin-bottom: 16px;
-    }
-    .gen-btn.ready {
-      background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white;
-      box-shadow: 0 8px 32px rgba(99,102,241,0.35);
-    }
-    .gen-btn.disabled { background: rgba(255,255,255,0.1); color: #475569; cursor: not-allowed; }
-
-    /* Result */
-    .result-card {
-      background: rgba(255,255,255,0.04); border-radius: 12px;
-      padding: 18px 20px; border: 1px solid rgba(255,255,255,0.06);
-      white-space: pre-wrap; font-size: 14px; line-height: 1.75; color: #cbd5e1;
-    }
-    .result-header {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 14px;
-    }
-    .copy-btn {
-      display: flex; align-items: center; gap: 6px;
-      padding: 8px 13px; border-radius: 8px; cursor: pointer;
-      font-size: 13px; font-weight: 600; transition: all 0.2s;
-      border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.08); color: #94a3b8;
-    }
-    .copy-btn.copied { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.4); color: #4ade80; }
-    .empty-state {
-      text-align: center; padding: 48px 20px; color: #475569;
-    }
-    .empty-state p { margin-top: 12px; font-size: 14px; }
-
-    /* Spinner */
-    .spinner {
-      width: 18px; height: 18px;
-      border: 2px solid rgba(255,255,255,0.3); border-top-color: white;
-      border-radius: 50%; animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* History */
-    .hist-item {
-      background: rgba(255,255,255,0.05); border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.08); margin-bottom: 10px;
-      overflow: hidden;
-    }
-    .hist-header {
-      display: flex; align-items: center; gap: 10px;
-      padding: 14px 16px; cursor: pointer;
-    }
-    .hist-info { flex: 1; }
-    .hist-title { font-weight: 700; font-size: 14px; color: white; }
-    .hist-meta { font-size: 12px; color: #64748b; margin-top: 3px; }
-    .tag {
-      display: inline-block; padding: 3px 8px; border-radius: 6px;
-      font-size: 11px; font-weight: 600; margin-right: 4px;
-    }
-    .tag-purple { background: rgba(99,102,241,0.2); color: #a5b4fc; }
-    .tag-violet { background: rgba(139,92,246,0.15); color: #c4b5fd; }
-    .hist-actions { display: flex; gap: 6px; align-items: center; }
-    .hist-copy-btn {
-      display: flex; align-items: center; gap: 4px; padding: 6px 10px;
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 7px; color: #94a3b8; font-size: 12px; font-weight: 600; cursor: pointer;
-    }
-    .hist-copy-btn.copied { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.3); color: #4ade80; }
-    .hist-del-btn {
-      display: flex; align-items: center; padding: 6px 8px;
-      background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
-      border-radius: 7px; color: #f87171; cursor: pointer;
-    }
-    .hist-body { border-top: 1px solid rgba(255,255,255,0.06); padding: 16px; display: none; }
-    .hist-body.open { display: block; }
-    .hist-body pre { white-space: pre-wrap; font-family: inherit; font-size: 14px; line-height: 1.75; color: #cbd5e1; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Monytime – Prospection</title>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Monytime"/>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body,#root{height:100%;font-family:system-ui,-apple-system,sans-serif}
+body{background:#f0f0f0;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:16px}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:#ddd;border-radius:4px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
 </head>
 <body>
-<div class="container">
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useRef} = React;
 
-  <!-- Header -->
-  <div class="header">
-    <div class="badge">✉️ MONYTIME</div>
-    <h1>Générateur de prospection</h1>
-    <p class="subtitle">Démarche les marques pour des placements YouTube</p>
-  </div>
+const SK_HISTORY="monytime_history_v4",SK_CREATORS="monytime_creators_v2",SK_APIKEY="monytime_apikey",SK_SIG="monytime_signature",SK_ANGLES="monytime_angles";
+const DEFAULT_CREATORS=[{id:1,name:"Christophe Pauly",niche:"Finance perso",subs:"120k",views:"80k/vidéo",eng:"6%",audience:"CSP+ 25-40 ans",url:""}];
+const TONES=[{value:"direct",label:"Direct",desc:"Court, résultat"},{value:"chaleureux",label:"Chaleureux",desc:"Relationnel"},{value:"premium",label:"Premium",desc:"Haut de gamme"},{value:"curieux",label:"Curieux",desc:"Sans pression"},{value:"custom",label:"Personnalisé",desc:"Mon style"}];
+const STATUTS=["Contacté","Relancé","En discussion","Signé","Perdu"];
+const STATUT_COLORS={"Contacté":"#3b82f6","Relancé":"#f59e0b","En discussion":"#8b5cf6","Signé":"#22c55e","Perdu":"#ef4444"};
+const WEAK_PHRASES=[
+  {phrase:"je me permets",reason:"Positionne l'expéditeur en position de faiblesse."},
+  {phrase:"j'espère que vous allez bien",reason:"Remplissage inutile, personne ne le lit."},
+  {phrase:"n'hésitez pas",reason:"Trop passif, affaiblit le CTA."},
+  {phrase:"cordialement",reason:"Générique et froid — ta signature suffit."},
+  {phrase:"suite à",reason:"Tournure administrative, pas commerciale."},
+  {phrase:"dans le cadre de",reason:"Jargon corporate, alourdit le message."},
+  {phrase:"je reste disponible",reason:"Passif, c'est à toi de proposer."},
+  {phrase:"en espérant",reason:"Manque de conviction."},
+  {phrase:"à votre disposition",reason:"Trop servile, perd en impact."},
+];
 
-  <!-- API Key -->
-  <div class="api-banner">
-    <div style="flex:1">
-      <strong>🔑 Clé API Anthropic requise</strong>
-      <input type="password" id="apiKey" placeholder="sk-ant-api03-..." />
+function useStorage(key,def){
+  const[val,setVal]=useState(()=>{try{const v=localStorage.getItem(key);return v?JSON.parse(v):def;}catch{return def;}});
+  const set=v=>{setVal(v);try{localStorage.setItem(key,JSON.stringify(v));}catch{}};
+  return[val,set];
+}
+
+const wc=txt=>txt?txt.trim().split(/\s+/).filter(Boolean).length:0;
+const hasCTA=txt=>/call|appel|15 min|dispo|réponse|minute|rendez|meet|zoom|agenda/i.test(txt);
+const hasPerso=txt=>/\b(vous|votre|vos)\b/i.test(txt);
+const extractSubject=e=>e?.split("\n")[0]||"";
+const extractBody=e=>e?.split("\n").slice(1).join("\n").trim()||"";
+const extractFirstLine=body=>body?.split("\n").find(l=>l.trim())||"";
+
+const G={
+  fi:{width:"100%",padding:"8px 10px",borderRadius:8,border:"0.5px solid #e2e2e2",fontSize:13,color:"#111",background:"#f8f8f8",outline:"none",boxSizing:"border-box",fontFamily:"system-ui"},
+  si:{width:"100%",padding:"7px 9px",borderRadius:8,border:"0.5px solid #e2e2e2",fontSize:11,color:"#111",background:"#f8f8f8",outline:"none",boxSizing:"border-box",fontFamily:"system-ui"},
+  sb:{padding:"7px 12px",background:"#6366f1",color:"white",border:"none",borderRadius:8,fontSize:11,fontWeight:500,cursor:"pointer"},
+  pill:{fontSize:10,padding:"2px 6px",borderRadius:4,background:"#f0f0f0",color:"#666",border:"0.5px solid #e2e2e2"},
+  sp:{width:14,height:14,border:"2px solid rgba(255,255,255,0.3)",borderTopColor:"white",borderRadius:"50%",animation:"spin 0.8s linear infinite",display:"inline-block",verticalAlign:"middle",marginRight:6},
+  spd:{width:13,height:13,border:"2px solid rgba(99,102,241,0.2)",borderTopColor:"#6366f1",borderRadius:"50%",animation:"spin 0.8s linear infinite",display:"inline-block",verticalAlign:"middle",marginRight:4},
+  ta:{width:"100%",padding:"8px 10px",borderRadius:8,border:"0.5px solid #e2e2e2",fontSize:11,color:"#111",background:"#f8f8f8",lineHeight:1.7,resize:"vertical",fontFamily:"system-ui",outline:"none",boxSizing:"border-box"},
+  card:{background:"#fff",borderRadius:8,border:"0.5px solid #e2e2e2",padding:10},
+  sec:{fontSize:11,fontWeight:500,color:"#999",textTransform:"uppercase",letterSpacing:"0.5px",paddingBottom:6,borderBottom:"0.5px solid #e2e2e2",marginBottom:10,display:"flex",justifyContent:"space-between",alignItems:"center"},
+  fl:{fontSize:12,fontWeight:500,color:"#555",marginBottom:4},
+};
+
+const aBtn=(primary,small,color)=>({
+  fontSize:small?10:11,padding:small?"3px 8px":"6px 12px",
+  borderRadius:8,border:`0.5px solid ${color||(primary?"#6366f1":"#e2e2e2")}`,
+  color:primary?"white":(color||"#666"),cursor:"pointer",
+  background:primary?(color||"#6366f1"):"#fff",flexShrink:0,
+  display:"inline-flex",alignItems:"center",gap:4,fontWeight:primary?500:400,
+});
+
+function Inp({label,sub,placeholder,value,onChange}){
+  return(
+    <div>
+      <div style={G.fl}>{label}{sub&&<span style={{fontSize:10,color:"#999",fontWeight:400}}> {sub}</span>}</div>
+      <input style={G.fi} placeholder={placeholder} value={value} onChange={e=>onChange(e.target.value)}/>
     </div>
-  </div>
+  );
+}
 
-  <!-- Tabs -->
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('form', this)">✍️ Composer</button>
-    <button class="tab inactive" id="histTab" onclick="switchTab('history', this)">🕓 Historique (0)</button>
-  </div>
-
-  <!-- FORM TAB -->
-  <div id="formTab">
-
-    <!-- Marque -->
-    <div class="card">
-      <div class="card-title">🎯 La marque</div>
-      <label>Nom de la marque *</label>
-      <input type="text" id="brandName" placeholder="ex : NordVPN, Squarespace, Gymshark…" />
-      <label>Secteur / produit</label>
-      <input type="text" id="brandSector" placeholder="ex : VPN, e-commerce, nutrition sportive…" />
-    </div>
-
-    <!-- Créateur -->
-    <div class="card">
-      <div class="card-title">🎬 Le créateur</div>
-      <label>Nom de la chaîne *</label>
-      <input type="text" id="creatorName" placeholder="ex : Christophe Pauly" />
-      <label>Niche / thématique</label>
-      <input type="text" id="creatorNiche" placeholder="ex : finance perso, fitness, entrepreneuriat…" />
-      <label>Stats clés</label>
-      <input type="text" id="creatorStats" placeholder="ex : 120k abonnés, 80k vues/vidéo, 6% engagement" />
-    </div>
-
-    <!-- Objectif -->
-    <div class="card">
-      <div class="card-title">📌 Objectif</div>
-      <div class="grid2" id="objectifGrid">
-        <button class="opt-btn selected" onclick="selectOpt('objectif', this, 'premier_contact')">1er contact froid</button>
-        <button class="opt-btn" onclick="selectOpt('objectif', this, 'relance')">Relance (pas de réponse)</button>
-        <button class="opt-btn" onclick="selectOpt('objectif', this, 'suite_appel')">Suite à un appel</button>
-        <button class="opt-btn" onclick="selectOpt('objectif', this, 'envoi_media_kit')">Envoi media kit</button>
+function InfoPanel({title,value,show,onToggle,onChange}){
+  if(!show)return null;
+  return(
+    <div style={{background:"#fff",border:"0.5px solid #6366f1",borderRadius:8,padding:10,marginTop:6}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+        <span style={{fontSize:11,fontWeight:500,color:"#6366f1"}}>{title}</span>
+        <button style={{fontSize:11,color:"#999",cursor:"pointer",padding:"2px 6px",borderRadius:4,border:"0.5px solid #e2e2e2",background:"none"}} onClick={onToggle}>Fermer</button>
       </div>
+      <textarea style={G.ta} value={value} onChange={e=>onChange(e.target.value)}/>
+      <div style={{fontSize:10,color:"#999",marginTop:4}}>Modifie si besoin.</div>
     </div>
+  );
+}
 
-    <!-- Ton -->
-    <div class="card">
-      <div class="card-title">✨ Ton rédactionnel</div>
-      <div class="grid1" id="toneGrid">
-        <button class="tone-btn selected" onclick="selectOpt('tone', this, 'direct')">
-          <span>Direct & percutant</span><span class="tone-desc">Court, clair, orienté résultat</span>
-        </button>
-        <button class="tone-btn" onclick="selectOpt('tone', this, 'chaleureux')">
-          <span>Chaleureux & humain</span><span class="tone-desc">Approche relationnelle</span>
-        </button>
-        <button class="tone-btn" onclick="selectOpt('tone', this, 'premium')">
-          <span>Premium & exclusif</span><span class="tone-desc">Ton haut de gamme, partenariat sélectif</span>
-        </button>
-        <button class="tone-btn" onclick="selectOpt('tone', this, 'curieux')">
-          <span>Curieux & ouvert</span><span class="tone-desc">Invitation à un échange, pas de pression</span>
-        </button>
-      </div>
-    </div>
+function HighlightedEmail({text}){
+  if(!text)return null;
+  const found=WEAK_PHRASES.filter(({phrase})=>text.toLowerCase().includes(phrase)).map(p=>p.phrase);
+  if(!found.length)return <div style={{fontSize:13,color:"#111",lineHeight:1.75,whiteSpace:"pre-wrap"}}>{text}</div>;
+  const parts=[];let remaining=text,key=0;
+  while(remaining.length>0){
+    let earliest=-1,earliestPhrase=null;
+    found.forEach(p=>{const idx=remaining.toLowerCase().indexOf(p);if(idx!==-1&&(earliest===-1||idx<earliest)){earliest=idx;earliestPhrase=p;}});
+    if(earliest===-1){parts.push(<span key={key++}>{remaining}</span>);break;}
+    if(earliest>0)parts.push(<span key={key++}>{remaining.slice(0,earliest)}</span>);
+    parts.push(<mark key={key++} style={{background:"#fef08a",borderRadius:3,padding:"0 2px"}}>{remaining.slice(earliest,earliest+earliestPhrase.length)}</mark>);
+    remaining=remaining.slice(earliest+earliestPhrase.length);
+  }
+  return <div style={{fontSize:13,color:"#111",lineHeight:1.75}}>{parts}</div>;
+}
 
-    <!-- Notes -->
-    <div class="card" style="padding:0; overflow:hidden;">
-      <button class="collapse-btn" onclick="toggleCollapse()">
-        <span>Notes supplémentaires (optionnel)</span>
-        <span id="collapseIcon">▼</span>
-      </button>
-      <div class="collapse-content" id="collapseContent">
-        <textarea id="notes" rows="3" placeholder="Infos spécifiques : ancienne collab, angle particulier, contact précis…"></textarea>
-      </div>
-    </div>
+function App(){
+  const[sidebarOpen,setSidebarOpen]=useState(true);
+  const[ltab,setLtab]=useState("creators");
+  const[mainMode,setMainMode]=useState("generate");
+  const[creators,setCreators]=useStorage(SK_CREATORS,DEFAULT_CREATORS);
+  const[history,setHistory]=useStorage(SK_HISTORY,[]);
+  const[apiKey,setApiKey]=useStorage(SK_APIKEY,"");
+  const[sig,setSig]=useStorage(SK_SIG,{name:"William Delage – Monytime",sub:"Agence de sponsoring YouTube"});
+  const[savedAngles,setSavedAngles]=useStorage(SK_ANGLES,[]);
+  const[apiKeyInput,setApiKeyInput]=useState(apiKey);
+  const[sigName,setSigName]=useState(sig.name);
+  const[sigSub,setSigSub]=useState(sig.sub);
 
-    <!-- Bouton générer -->
-    <button class="gen-btn disabled" id="genBtn" onclick="generate()">
-      <span>✉️</span> Générer l'email
-    </button>
+  const[brandName,setBrandName]=useState("");
+  const[brandSector,setBrandSector]=useState("");
+  const[brandUrl,setBrandUrl]=useState("");
+  const[brandContact,setBrandContact]=useState("");
+  const[brandNotes,setBrandNotes]=useState("");
+  const[brandAnalysis,setBrandAnalysis]=useState("");
+  const[showBrandInfo,setShowBrandInfo]=useState(false);
 
-    <!-- Résultat -->
-    <div class="card" id="resultSection" style="display:none;">
-      <div class="result-header">
-        <div class="card-title" style="margin:0">📧 Email généré</div>
-        <button class="copy-btn" id="copyBtn" onclick="copyResult()">
-          <span>📋</span> Copier
-        </button>
-      </div>
-      <div class="result-card" id="resultText"></div>
-    </div>
+  const[creatorName,setCreatorName]=useState("");
+  const[creatorNiche,setCreatorNiche]=useState("");
+  const[creatorSubs,setCreatorSubs]=useState("");
+  const[creatorViews,setCreatorViews]=useState("");
+  const[creatorEng,setCreatorEng]=useState("");
+  const[creatorAudience,setCreatorAudience]=useState("");
+  const[creatorUrlRaw,setCreatorUrlRaw]=useState("");
+  const[creatorAnalysis,setCreatorAnalysis]=useState("");
+  const[showCreatorInfo,setShowCreatorInfo]=useState(false);
 
-    <div class="card empty-state" id="emptyState">
-      <div style="font-size:40px">✉️</div>
-      <p style="font-weight:600; color:#64748b">L'email apparaîtra ici</p>
-      <p style="color:#475569; font-size:13px">Remplis la marque et le créateur, puis génère.</p>
-    </div>
+  const[sequence,setSequence]=useState("premier_contact");
+  const[customSequences,setCustomSequences]=useState([]);
+  const[addingSeq,setAddingSeq]=useState(false);
+  const[newSeqText,setNewSeqText]=useState("");
+  const[tone,setTone]=useState("direct");
+  const[customTone,setCustomTone]=useState("");
+  const[objectif,setObjectif]=useState("");
+  const[angle,setAngle]=useState("");
+  const[whyNow,setWhyNow]=useState("");
+  const[preuve,setPreuve]=useState("");
+  const[showAngles,setShowAngles]=useState(false);
 
-  </div>
+  const[improveEmail,setImproveEmail]=useState("");
+  const[useFormData,setUseFormData]=useState(false);
+  const[showWeakPhrases,setShowWeakPhrases]=useState(false);
+  const[analysis,setAnalysis]=useState(null);
+  const[analysisLoading,setAnalysisLoading]=useState(false);
+  const[rewrittenPassages,setRewrittenPassages]=useState({});
+  const[passageLoading,setPassageLoading]=useState({});
+  const[rewrittenFull,setRewrittenFull]=useState("");
+  const[rewriteFullLoading,setRewriteFullLoading]=useState(false);
+  const[shortenResult,setShortenResult]=useState("");
+  const[shortenLoading,setShortenLoading]=useState(false);
+  const[toneResult,setToneResult]=useState("");
+  const[toneLoading,setToneLoading]=useState(false);
+  const[changeToneTarget,setChangeToneTarget]=useState("direct");
+  const[showChangeTone,setShowChangeTone]=useState(false);
+  const[anglesSuggestions,setAnglesSuggestions]=useState([]);
+  const[anglesLoading,setAnglesLoading]=useState(false);
+  const[selectedAngle,setSelectedAngle]=useState(null);
+  const[angleRewriteResult,setAngleRewriteResult]=useState("");
+  const[angleRewriteLoading,setAngleRewriteLoading]=useState(false);
+  const[altSubjects,setAltSubjects]=useState([]);
+  const[altSubjectsLoading,setAltSubjectsLoading]=useState(false);
+  const[altFirstLines,setAltFirstLines]=useState([]);
+  const[firstLinesLoading,setFirstLinesLoading]=useState(false);
+  const[altCTAs,setAltCTAs]=useState([]);
+  const[ctasLoading,setCtasLoading]=useState(false);
+  const[persoScore,setPersoScore]=useState(null);
+  const[readability,setReadability]=useState(null);
 
-  <!-- HISTORY TAB -->
-  <div id="historyTab" style="display:none;">
-    <div id="histEmpty" class="card empty-state">
-      <div style="font-size:40px">🕓</div>
-      <p style="font-weight:600; color:#64748b">Aucun email généré</p>
-      <p style="color:#475569; font-size:13px">Les emails générés apparaîtront ici.</p>
-    </div>
-    <div id="histList"></div>
-  </div>
+  const[result,setResult]=useState(null);
+  const[result2,setResult2]=useState(null);
+  const[isLoading,setIsLoading]=useState(false);
+  const[isAbLoading,setIsAbLoading]=useState(false);
+  const[isAnalyzing,setIsAnalyzing]=useState({brand:false,creator:false});
+  const[scoring,setScoring]=useState(null);
+  const[scoringLoading,setScoringLoading]=useState(false);
+  const[pitch,setPitch]=useState(null);
+  const[pitchLoading,setPitchLoading]=useState(false);
+  const[rewriteIdx,setRewriteIdx]=useState(null);
+  const[rewriteText,setRewriteText]=useState("");
+  const[rewriteLoading,setRewriteLoading]=useState(false);
+  const[copied,setCopied]=useState("");
+  const[addingCreator,setAddingCreator]=useState(false);
+  const[newC,setNewC]=useState({name:"",niche:"",subs:"",views:"",eng:"",audience:"",url:""});
+  const[histSearch,setHistSearch]=useState("");
+  const[showDash,setShowDash]=useState(false);
+  const[batchMode,setBatchMode]=useState(false);
+  const[batchBrands,setBatchBrands]=useState("");
+  const[batchResults,setBatchResults]=useState([]);
+  const[batchLoading,setBatchLoading]=useState(false);
+  const resultRef=useRef(null);
 
-</div>
+  const resetImprove=()=>{setAnalysis(null);setRewrittenPassages({});setRewrittenFull("");setShortenResult("");setToneResult("");setAnglesSuggestions([]);setSelectedAngle(null);setAngleRewriteResult("");setAltSubjects([]);setAltFirstLines([]);setAltCTAs([]);setPersoScore(null);setReadability(null);setShowWeakPhrases(false);};
+  const resetForm=()=>{setBrandName("");setBrandSector("");setBrandUrl("");setBrandContact("");setBrandNotes("");setBrandAnalysis("");setShowBrandInfo(false);setCreatorName("");setCreatorNiche("");setCreatorSubs("");setCreatorViews("");setCreatorEng("");setCreatorAudience("");setCreatorUrlRaw("");setCreatorAnalysis("");setShowCreatorInfo(false);setObjectif("");setAngle("");setWhyNow("");setPreuve("");setSequence("premier_contact");setCustomSequences([]);setTone("direct");setCustomTone("");setResult(null);setResult2(null);setScoring(null);setImproveEmail("");resetImprove();};
 
-<script>
-  const state = {
-    objectif: 'premier_contact',
-    tone: 'direct',
-    history: [],
-    result: '',
-    collapseOpen: false,
+  const loadCreator=cr=>{setCreatorName(cr.name||"");setCreatorNiche(cr.niche||"");setCreatorSubs(cr.subs||"");setCreatorViews(cr.views||"");setCreatorEng(cr.eng||"");setCreatorAudience(cr.audience||"");setCreatorUrlRaw(cr.url||"");const parts=[cr.niche&&`Niche : ${cr.niche}`,cr.subs&&`Abonnés : ${cr.subs}`,cr.views&&`Vues : ${cr.views}`,cr.eng&&`Engagement : ${cr.eng}`,cr.audience&&`Audience : ${cr.audience}`].filter(Boolean);if(parts.length)setCreatorAnalysis(parts.join("\n"));};
+
+  const callClaude=async(prompt,maxTokens=1000)=>{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:maxTokens,messages:[{role:"user",content:prompt}]})
+    });
+    const data=await res.json();
+    return(data.content||[]).map(b=>b.text||"").join("").trim();
   };
 
-  // Sync inputs to enable/disable button
-  ['brandName','creatorName'].forEach(id => {
-    document.getElementById(id).addEventListener('input', updateBtn);
-  });
+  const analyzeUrl=async type=>{
+    const url=type==="brand"?brandUrl:creatorUrlRaw;
+    if(!url||!apiKey)return;
+    setIsAnalyzing(p=>({...p,[type]:true}));
+    try{
+      const prompt=type==="brand"?`Analyse ce site de marque : ${url}\n\nExtrait en 5-6 lignes :\n- Positionnement\n- Cible principale\n- Ton de communication\n- Offre principale\n- Valeurs clés\n\nFormat : "Clé : valeur" par ligne. Factuel et concis.`:`Analyse cette chaîne YouTube : ${url}\n\nExtrait en 5-6 lignes :\n- Niche\n- Audience cible\n- Style de contenu\n- Stats estimées\n- Points forts sponsor\n\nFormat : "Clé : valeur" par ligne. Factuel et concis.`;
+      const text=await callClaude(prompt,500);
+      if(type==="brand"){setBrandAnalysis(text);setShowBrandInfo(true);}else{setCreatorAnalysis(text);setShowCreatorInfo(true);}
+    }catch{if(type==="brand")setBrandAnalysis("Erreur.");else setCreatorAnalysis("Erreur.");}
+    setIsAnalyzing(p=>({...p,[type]:false}));
+  };
 
-  function updateBtn() {
-    const b = document.getElementById('brandName').value.trim();
-    const c = document.getElementById('creatorName').value.trim();
-    const btn = document.getElementById('genBtn');
-    btn.className = 'gen-btn ' + (b && c ? 'ready' : 'disabled');
-  }
+  const getSeqLabel=()=>{if(sequence==="premier_contact")return"1er contact froid";return customSequences.find(s=>s.id===sequence)?.text||sequence;};
+  const getToneLabel=()=>tone==="custom"?(customTone||"personnalisé"):TONES.find(t=>t.value===tone)?.label||tone;
+  const buildCtxStr=()=>[brandName&&`MARQUE : ${brandName}${brandSector?` (${brandSector})`:""}`,brandContact&&`Contact : ${brandContact}`,brandNotes&&`Notes : ${brandNotes}`,brandAnalysis&&`Analyse marque : ${brandAnalysis}`,creatorName&&`CRÉATEUR : ${creatorName}${creatorNiche?` — ${creatorNiche}`:""}`,creatorSubs&&`Abonnés : ${creatorSubs}`,creatorViews&&`Vues : ${creatorViews}`,creatorEng&&`Engagement : ${creatorEng}`,creatorAudience&&`Audience : ${creatorAudience}`,creatorAnalysis&&`Analyse créateur : ${creatorAnalysis}`,angle&&`Angle : ${angle}`,whyNow&&`Why now : ${whyNow}`,preuve&&`Preuve : ${preuve}`].filter(Boolean).join("\n");
+  const ctx=()=>useFormData?`\nContexte :\n${buildCtxStr()}`:"";
 
-  function selectOpt(group, el, val) {
-    state[group] = val;
-    const gridId = group === 'objectif' ? 'objectifGrid' : 'toneGrid';
-    const cls = group === 'objectif' ? 'opt-btn' : 'tone-btn';
-    document.querySelectorAll('#' + gridId + ' .' + cls).forEach(b => b.classList.remove('selected'));
-    el.classList.add('selected');
-  }
+  const buildEmailPrompt=(contextEmail=null,lang="fr")=>`Tu es un expert en prospection B2B pour Monytime, agence française de placement produit sur YouTube.
+Génère un email de prospection en ${lang==="en"?"anglais":"français"}.
+${buildCtxStr()}
+CONTEXTE :
+- Objectif : ${objectif||"Proposition de collaboration sponsoring"}
+- Étape : ${getSeqLabel()}
+- Ton : ${getToneLabel()}${tone==="custom"&&customTone?`\nStyle exact : "${customTone}"`:""}
+${contextEmail?`\nEMAIL PRÉCÉDENT :\n${contextEmail}`:""}
+RÈGLES :
+- Max 120 mots corps
+- ${sequence==="premier_contact"?"1ère ligne = pattern interrupt fort, jamais \"je me permets de...\"":"Adapte à l'étape : "+getSeqLabel()}
+- Orienté bénéfice marque, CTA simple
+- Signature : ${sig.name}\n${sig.sub}
+FORMAT : "Objet : ..." puis corps. Rien d'autre.`;
 
-  function toggleCollapse() {
-    state.collapseOpen = !state.collapseOpen;
-    document.getElementById('collapseContent').className = 'collapse-content' + (state.collapseOpen ? ' open' : '');
-    document.getElementById('collapseIcon').textContent = state.collapseOpen ? '▲' : '▼';
-  }
+  const saveEntry=(email,extra={})=>{const entry={id:Date.now(),brand:brandName,contact:brandContact,creator:creatorName||creatorUrlRaw||"–",sequence:getSeqLabel(),tone:getToneLabel(),email,brandAnalysis,creatorAnalysis,statut:"Contacté",time:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),date:new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"short"}),...extra};setHistory(prev=>[entry,...prev]);return entry;};
 
-  function switchTab(tab, el) {
-    document.querySelectorAll('.tab').forEach(t => { t.className = 'tab inactive'; });
-    el.className = 'tab active';
-    document.getElementById('formTab').style.display = tab === 'form' ? 'block' : 'none';
-    document.getElementById('historyTab').style.display = tab === 'history' ? 'block' : 'none';
-  }
+  const generate=async(contextEmail=null,lang="fr",silent=false)=>{
+    if(!apiKey||!brandName)return;
+    if(!silent){setIsLoading(true);setResult(null);setResult2(null);setScoring(null);}
+    try{
+      const text=await callClaude(buildEmailPrompt(contextEmail,lang));
+      const entry=saveEntry(text,lang==="en"?{lang:"en"}:{});
+      if(!silent){setResult(entry);setImproveEmail(text);setTimeout(()=>resultRef.current?.scrollIntoView({behavior:"smooth"}),100);}
+      return entry;
+    }catch(e){if(!silent)setResult({email:"Erreur : "+e.message,brand:brandName});}
+    finally{if(!silent)setIsLoading(false);}
+  };
 
-  async function generate() {
-    const apiKey = document.getElementById('apiKey').value.trim();
-    const brandName = document.getElementById('brandName').value.trim();
-    const creatorName = document.getElementById('creatorName').value.trim();
-    if (!brandName || !creatorName) return;
-    if (!apiKey) { alert('Entre ta clé API Anthropic d\'abord.'); return; }
+  const generateAB=async()=>{setIsAbLoading(true);setResult(null);setResult2(null);try{const[a,b]=await Promise.all([generate(null,"fr",true),generate(null,"fr",true)]);setResult(a);setResult2(b);if(a)setImproveEmail(a.email);setTimeout(()=>resultRef.current?.scrollIntoView({behavior:"smooth"}),100);}finally{setIsAbLoading(false);}};
 
-    const brandSector = document.getElementById('brandSector').value.trim();
-    const creatorNiche = document.getElementById('creatorNiche').value.trim();
-    const creatorStats = document.getElementById('creatorStats').value.trim();
-    const notes = document.getElementById('notes').value.trim();
+  const generateBatch=async()=>{const brands=batchBrands.split("\n").map(b=>b.trim()).filter(Boolean);if(!brands.length||!apiKey)return;setBatchLoading(true);setBatchResults([]);const results=[];for(const b of brands){try{const saved=brandName;setBrandName(b);const text=await callClaude(buildEmailPrompt());setBrandName(saved);results.push({brand:b,email:text});}catch{results.push({brand:b,email:"Erreur.});}}setBatchResults(results);setBatchLoading(false);};
 
-    const btn = document.getElementById('genBtn');
-    btn.innerHTML = '<div class="spinner"></div> Génération en cours…';
-    btn.className = 'gen-btn disabled';
+  const getScore=async()=>{if(!brandName||!apiKey)return;setScoringLoading(true);setScoring(null);try{const text=await callClaude(`Évalue pertinence match marque × créateur pour sponsoring YouTube. Note /10.\n${buildCtxStr()}\nJSON uniquement : {"score":X,"verdict":"...","points_forts":["..."],"points_faibles":["..."]}`,400);setScoring(JSON.parse(text.replace(/```json|```/g,"").trim()));}catch{setScoring({score:0,verdict:"Erreur.",points_forts:[],points_faibles:[]});}setScoringLoading(false);};
 
-    document.getElementById('emptyState').style.display = 'none';
-    document.getElementById('resultSection').style.display = 'none';
+  const rewriteSection=async()=>{if(!rewriteText||!apiKey)return;setRewriteLoading(true);try{const text=await callClaude(`Réécris uniquement cette partie d'un email de prospection B2B. Même sens, meilleur impact. Retourne uniquement la partie réécrite.\nTexte : "${rewriteText}"`,300);if(result)setResult(r=>({...r,email:r.email.replace(rewriteText,text)}));setRewriteIdx(null);setRewriteText("");}catch{}setRewriteLoading(false);};
 
-    const objectifLabels = {
-      premier_contact: '1er contact froid', relance: 'Relance (pas de réponse)',
-      suite_appel: 'Suite à un appel', envoi_media_kit: 'Envoi media kit'
-    };
+  const generatePitch=async()=>{if(!creatorName||!apiKey)return;setPitchLoading(true);setPitch(null);try{const text=await callClaude(`Mini media kit texte pour ce créateur YouTube. 3 paragraphes courts. Ton pro. Max 150 mots. Français.\nCréateur : ${creatorName}${creatorNiche?`\nNiche : ${creatorNiche}`:""}${creatorSubs?`\nAbonnés : ${creatorSubs}`:""}${creatorAnalysis?`\nAnalyse : ${creatorAnalysis}`:""}`,600);setPitch(text);}catch{setPitch("Erreur.");}setPitchLoading(false);};
 
-    const prompt = `Tu es un expert en prospection commerciale B2B pour une agence de marketing d'influence française appelée Monytime, spécialisée dans les placements de produit sur YouTube.
+  const translateEmail=async email=>{if(!email||!apiKey)return;setIsLoading(true);try{const text=await callClaude(`Traduis cet email de prospection en anglais. Même ton et impact. Uniquement l'email traduit.\nEmail : ${email}`,800);const entry=saveEntry(text,{lang:"en",translated:true});setResult(entry);setImproveEmail(text);}catch{}setIsLoading(false);};
 
-Ton rôle : rédiger un email de prospection froid ultra-professionnel pour démarcher une marque et lui proposer un partenariat sponsoring avec un créateur YouTube que l'agence accompagne.
+  // Outils améliorer
+  const analyzeEmail=async()=>{if(!improveEmail||!apiKey)return;setAnalysisLoading(true);setAnalysis(null);resetImprove();try{const text=await callClaude(`Analyse cet email de prospection B2B influence YouTube.\nEMAIL :\n${improveEmail}\nJSON uniquement :\n{"note":X,"points_forts":[{"texte":"...","explication":"..."}],"points_faibles":[{"texte":"...","explication":"...","passage":"..."}],"perso_score":X,"readability":{"longueur":"ok|trop long|trop court","densite":"ok|trop dense","formalite":"ok|trop formel|trop familier","suggestion":"..."}}\nNote /10. perso_score /10. "passage" = extrait exact. Max 3 items par liste.`,800);const parsed=JSON.parse(text.replace(/```json|```/g,"").trim());setAnalysis(parsed);if(parsed.perso_score!==undefined)setPersoScore(parsed.perso_score);if(parsed.readability)setReadability(parsed.readability);}catch{setAnalysis({note:0,points_forts:[],points_faibles:[],error:true});}setAnalysisLoading(false);};
 
-Contexte :
-- Marque ciblée : ${brandName}
-- Secteur de la marque : ${brandSector || 'non précisé'}
-- Créateur proposé : ${creatorName}
-- Niche du créateur : ${creatorNiche || 'non précisée'}
-- Stats du créateur : ${creatorStats || 'non précisées'}
-- Objectif de l'email : ${state.objectif}
-- Ton souhaité : ${state.tone}
-${notes ? `- Notes supplémentaires : ${notes}` : ''}
+  const rewritePassageFn=async(passage,idx)=>{if(!passage||!apiKey)return;setPassageLoading(p=>({...p,[idx]:true}));try{const text=await callClaude(`Réécris uniquement ce passage d'un email de prospection B2B. Améliore l'impact sans changer le sens. Retourne uniquement le passage réécrit.\nPassage : "${passage}"`,300);setRewrittenPassages(p=>({...p,[idx]:text}));}catch{}setPassageLoading(p=>({...p,[idx]:false}));};
 
-Rédige un email de prospection en français avec :
-1. Un objet d'email accrocheur (commence par "Objet : ")
-2. Une ligne de saut
-3. Le corps de l'email (commence directement par quelque chose d'impactant, pas de formule générique)
-4. Une signature type : William Delage – Monytime | Agence de sponsoring YouTube
+  const rewriteFullFn=async()=>{if(!improveEmail||!apiKey)return;setRewriteFullLoading(true);setRewrittenFull("");try{const text=await callClaude(`Réécris cet email de prospection en gardant exactement le style d'écriture de l'auteur. Améliore uniquement la clarté, l'impact et la fluidité. Ne le rends pas plus formel.${ctx()}\nEMAIL ORIGINAL :\n${improveEmail}\nFormat : "Objet : ..." puis corps. Rien d'autre.`,800);setRewrittenFull(text);}catch{setRewrittenFull("Erreur.");}setRewriteFullLoading(false);};
 
-Règles :
-- Email court (max 150 mots pour le corps)
-- Zéro blabla
-- Orienté bénéfice pour la marque
-- Call-to-action clair en fin d'email
-- Voix naturelle, pas corporate
+  const shortenFn=async()=>{if(!improveEmail||!apiKey)return;setShortenLoading(true);setShortenResult("");try{const text=await callClaude(`Raccourcis cet email de prospection B2B sans perdre l'impact. Vise 80-100 mots pour le corps.${ctx()}\nEMAIL :\n${improveEmail}\nFormat : "Objet : ..." puis corps. Rien d'autre.`,600);setShortenResult(text);}catch{setShortenResult("Erreur.");}setShortenLoading(false);};
 
-Réponds avec UNIQUEMENT l'email. Rien d'autre.`;
+  const changeToneFn=async target=>{if(!improveEmail||!apiKey)return;setToneLoading(true);setToneResult("");const toneMap={direct:"direct et percutant",chaleureux:"chaleureux et humain",premium:"premium et exclusif",curieux:"curieux et ouvert, sans pression"};try{const text=await callClaude(`Réécris cet email de prospection B2B avec un ton ${toneMap[target]||target}. Garde le même message.${ctx()}\nEMAIL :\n${improveEmail}\nFormat : "Objet : ..." puis corps. Rien d'autre.`,800);setToneResult(text);setChangeToneTarget(target);}catch{setToneResult("Erreur.");}setToneLoading(false);};
 
-    try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          messages: [{ role: 'user', content: prompt }]
-        })
-      });
-      const data = await res.json();
-      const text = (data.content || []).map(b => b.text || '').join('').trim();
-      state.result = text;
+  const suggestAngles=async()=>{if(!improveEmail||!apiKey)return;setAnglesLoading(true);setAnglesSuggestions([]);setSelectedAngle(null);setAngleRewriteResult("");try{const text=await callClaude(`Analyse cet email de prospection et propose 3 angles marketing différents pour le rendre plus percutant.${ctx()}\nEMAIL :\n${improveEmail}\nJSON uniquement : {"angles":[{"titre":"...","description":"...","exemple_accroche":"..."},{"titre":"...","description":"...","exemple_accroche":"..."},{"titre":"...","description":"...","exemple_accroche":"..."}]}`,600);const parsed=JSON.parse(text.replace(/```json|```/g,"").trim());setAnglesSuggestions(parsed.angles||[]);}catch{}setAnglesLoading(false);};
 
-      document.getElementById('resultText').textContent = text;
-      document.getElementById('resultSection').style.display = 'block';
+  const rewriteWithAngle=async a=>{if(!improveEmail||!apiKey)return;setAngleRewriteLoading(true);setAngleRewriteResult("");try{const text=await callClaude(`Réécris cet email de prospection en utilisant cet angle : "${a.titre} — ${a.description}".\nAccroche suggérée : "${a.exemple_accroche}"\nGarde la même structure.${ctx()}\nEMAIL ORIGINAL :\n${improveEmail}\nFormat : "Objet : ..." puis corps. Rien d'autre.`,800);setAngleRewriteResult(text);}catch{setAngleRewriteResult("Erreur.");}setAngleRewriteLoading(false);};
 
-      // Ajouter à l'historique
-      const entry = {
-        id: Date.now(),
-        brand: brandName, creator: creatorName,
-        objectif: objectifLabels[state.objectif],
-        tone: state.tone,
-        email: text,
-        time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-      };
-      state.history.unshift(entry);
-      renderHistory();
+  const getAltSubjectsFn=async()=>{if(!improveEmail||!apiKey)return;setAltSubjectsLoading(true);setAltSubjects([]);try{const text=await callClaude(`Génère 5 variantes d'objet pour cet email de prospection. Styles très différents : curiosité, chiffre, prénom, question, pattern interrupt.\nEmail : ${improveEmail}\nJSON uniquement : {"objets":[{"style":"...","objet":"..."},{"style":"...","objet":"..."},{"style":"...","objet":"..."},{"style":"...","objet":"..."},{"style":"...","objet":"..."}]}`,400);const parsed=JSON.parse(text.replace(/```json|```/g,"").trim());setAltSubjects(parsed.objets||[]);}catch{}setAltSubjectsLoading(false);};
 
-    } catch(e) {
-      document.getElementById('resultText').textContent = 'Erreur : ' + e.message;
-      document.getElementById('resultSection').style.display = 'block';
-    }
+  const getAltFirstLinesFn=async()=>{if(!improveEmail||!apiKey)return;setFirstLinesLoading(true);setAltFirstLines([]);try{const body=extractBody(improveEmail);const firstLine=extractFirstLine(body);const text=await callClaude(`Génère 3 alternatives à cette première ligne d'email. Chacune doit être un pattern interrupt fort.${ctx()}\nPremière ligne actuelle : "${firstLine}"\nJSON uniquement : {"lignes":["...","...","..."]}`,400);const parsed=JSON.parse(text.replace(/```json|```/g,"").trim());setAltFirstLines(parsed.lignes||[]);}catch{}setFirstLinesLoading(false);};
 
-    btn.innerHTML = '<span>✉️</span> Générer l\'email';
-    updateBtn();
-  }
+  const getAltCTAsFn=async()=>{if(!improveEmail||!apiKey)return;setCtasLoading(true);setAltCTAs([]);try{const text=await callClaude(`Génère 3 CTA alternatifs pour cet email. Chacun doit être précis, engageant, facile à répondre oui/non.\nEmail : ${improveEmail}\nJSON uniquement : {"ctas":["...","...","..."]}`,300);const parsed=JSON.parse(text.replace(/```json|```/g,"").trim());setAltCTAs(parsed.ctas||[]);}catch{}setCtasLoading(false);};
 
-  async function copyResult() {
-    await navigator.clipboard.writeText(state.result);
-    const btn = document.getElementById('copyBtn');
-    btn.className = 'copy-btn copied';
-    btn.innerHTML = '<span>✅</span> Copié !';
-    setTimeout(() => { btn.className = 'copy-btn'; btn.innerHTML = '<span>📋</span> Copier'; }, 2000);
-  }
+  const updateStatut=(id,s)=>setHistory(prev=>prev.map(h=>h.id===id?{...h,statut:s}:h));
+  const copyText=async(txt,id)=>{await navigator.clipboard.writeText(txt);setCopied(id);setTimeout(()=>setCopied(""),2000);};
+  const canGenerate=!!(apiKey&&brandName&&!isLoading&&!isAbLoading);
+  const filteredHistory=history.filter(h=>!histSearch||h.brand?.toLowerCase().includes(histSearch.toLowerCase())||h.creator?.toLowerCase().includes(histSearch.toLowerCase()));
+  const dashStats={total:history.length,byStatut:STATUTS.reduce((a,s)=>({...a,[s]:history.filter(h=>h.statut===s).length}),{}),topCreator:(()=>{const c={};history.forEach(h=>{if(h.creator&&h.creator!=="–")c[h.creator]=(c[h.creator]||0)+1;});return Object.entries(c).sort((a,b)=>b[1]-a[1])[0];})()};
+  const improveWc=wc(extractBody(improveEmail));
+  const improveCTA=hasCTA(improveEmail);
+  const improvePerso=hasPerso(improveEmail);
+  const detectedWeak=WEAK_PHRASES.filter(({phrase})=>improveEmail.toLowerCase().includes(phrase));
 
-  function renderHistory() {
-    const list = document.getElementById('histList');
-    const empty = document.getElementById('histEmpty');
-    const tab = document.getElementById('histTab');
-    tab.textContent = `🕓 Historique (${state.history.length})`;
-
-    if (state.history.length === 0) { empty.style.display = 'block'; list.innerHTML = ''; return; }
-    empty.style.display = 'none';
-
-    list.innerHTML = state.history.map(e => `
-      <div class="hist-item">
-        <div class="hist-header" onclick="toggleHist(${e.id})">
-          <div class="hist-info">
-            <div class="hist-title">${e.brand} <span style="color:#64748b;font-weight:400">× ${e.creator}</span></div>
-            <div class="hist-meta" style="margin-top:6px">
-              <span class="tag tag-purple">${e.objectif}</span>
-              <span class="tag tag-violet">${e.tone}</span>
-            </div>
-          </div>
-          <div class="hist-actions">
-            <span style="color:#475569;font-size:12px;margin-right:4px">${e.time}</span>
-            <button class="hist-copy-btn" id="hcopy${e.id}" onclick="event.stopPropagation();copyHist(${e.id})">📋 Copier</button>
-            <button class="hist-del-btn" onclick="event.stopPropagation();deleteHist(${e.id})">🗑</button>
+  const ResultBlock=({r,idx})=>(
+    <div style={{flex:1,background:"#f8f8f8",borderRadius:12,border:"0.5px solid #e2e2e2",padding:16}} ref={idx===0?resultRef:null}>
+      {result2&&<div style={{fontSize:11,fontWeight:500,color:"#6366f1",marginBottom:6}}>Version {idx===0?"A":"B"}</div>}
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8,gap:8}}>
+        <div style={{fontSize:12,fontWeight:500,color:"#6366f1",flex:1}}>{extractSubject(r.email)}</div>
+        <span style={aBtn(false,true)} onClick={()=>copyText(extractSubject(r.email),`subj${idx}`)}>{copied===`subj${idx}`?"✓":"Copier objet"}</span>
+      </div>
+      <div style={{fontSize:13,color:"#111",lineHeight:1.75,whiteSpace:"pre-wrap"}}>{extractBody(r.email)}</div>
+      <div style={{fontSize:10,color:"#bbb",marginTop:6}}>{wc(extractBody(r.email))} mots</div>
+      {rewriteIdx===idx&&(
+        <div style={{marginTop:10,padding:10,background:"#fff",borderRadius:8,border:"0.5px solid #6366f1"}}>
+          <div style={{fontSize:11,fontWeight:500,color:"#6366f1",marginBottom:6}}>Colle la phrase à réécrire</div>
+          <textarea style={G.ta} placeholder="Colle ici…" value={rewriteText} onChange={e=>setRewriteText(e.target.value)}/>
+          <div style={{display:"flex",gap:6,marginTop:6}}>
+            <button style={G.sb} onClick={rewriteSection} disabled={rewriteLoading}>{rewriteLoading?<><div style={G.sp}/>...</>:"Réécrire"}</button>
+            <button style={{...G.sb,background:"#eee",color:"#666"}} onClick={()=>{setRewriteIdx(null);setRewriteText("");}}>Annuler</button>
           </div>
         </div>
-        <div class="hist-body" id="hbody${e.id}">
-          <pre>${e.email}</pre>
+      )}
+      <div style={{display:"flex",gap:6,marginTop:10,flexWrap:"wrap"}}>
+        <span style={aBtn(true)} onClick={()=>copyText(r.email,`full${idx}`)}>{copied===`full${idx}`?"✓ Copié":"Copier tout"}</span>
+        <span style={aBtn(false)} onClick={()=>copyText(extractBody(r.email),`body${idx}`)}>{copied===`body${idx}`?"✓":"Copier corps"}</span>
+        {idx===0&&<span style={aBtn(false)} onClick={()=>generate()}>Variante</span>}
+        {idx===0&&<span style={aBtn(false)} onClick={()=>setRewriteIdx(rewriteIdx===0?null:0)}>Réécrire partie</span>}
+        {idx===0&&<span style={aBtn(false)} onClick={()=>translateEmail(r.email)}>Traduire EN</span>}
+        {idx===0&&<span style={{...aBtn(false),color:"#6366f1",borderColor:"#6366f1"}} onClick={()=>{setImproveEmail(r.email);resetImprove();setMainMode("improve");}}>✏️ Améliorer</span>}
+      </div>
+    </div>
+  );
+
+  return(
+    <div style={{display:"grid",gridTemplateColumns:sidebarOpen?"268px 1fr":"0 1fr",height:"700px",width:"100%",maxWidth:1100,border:"0.5px solid #e2e2e2",borderRadius:12,overflow:"hidden",background:"#fff",position:"relative"}}>
+      <div style={{position:"absolute",top:"50%",transform:"translateY(-50%)",left:sidebarOpen?266:0,width:18,height:32,background:"#fff",border:"0.5px solid #e2e2e2",borderRadius:"0 6px 6px 0",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",zIndex:20,fontSize:10,color:"#999"}} onClick={()=>setSidebarOpen(o=>!o)}>
+        {sidebarOpen?"‹":"›"}
+      </div>
+
+      {sidebarOpen&&(
+        <div style={{background:"#f8f8f8",borderRight:"0.5px solid #e2e2e2",display:"flex",flexDirection:"column",overflow:"hidden"}}>
+          <div style={{padding:"13px 16px",borderBottom:"0.5px solid #e2e2e2",display:"flex",alignItems:"center",gap:8}}>
+            <div style={{background:"#6366f1",borderRadius:8,width:26,height:26,display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontSize:11,fontWeight:500}}>M</div>
+            <span style={{fontSize:13,fontWeight:500,color:"#111"}}>Monytime</span>
+            <button style={{marginLeft:"auto",fontSize:10,padding:"3px 8px",borderRadius:6,border:"0.5px solid #6366f1",color:"#6366f1",background:"none",cursor:"pointer"}} onClick={()=>setShowDash(o=>!o)}>{showDash?"← Retour":"Stats"}</button>
+          </div>
+
+          {showDash?(
+            <div style={{flex:1,overflowY:"auto",padding:12,display:"flex",flexDirection:"column",gap:8}}>
+              <div style={{fontSize:11,fontWeight:500,color:"#999",textTransform:"uppercase",letterSpacing:"0.5px"}}>Tableau de bord</div>
+              <div style={G.card}><div style={{fontSize:22,fontWeight:700,color:"#6366f1"}}>{dashStats.total}</div><div style={{fontSize:11,color:"#666"}}>emails générés</div></div>
+              {STATUTS.map(s=><div key={s} style={{...G.card,display:"flex",justifyContent:"space-between",alignItems:"center"}}><span style={{fontSize:12,color:STATUT_COLORS[s],fontWeight:500}}>{s}</span><span style={{fontSize:16,fontWeight:700,color:"#111"}}>{dashStats.byStatut[s]||0}</span></div>)}
+              {dashStats.topCreator&&<div style={G.card}><div style={{fontSize:11,color:"#999",marginBottom:4}}>Créateur le + prospecté</div><div style={{fontSize:13,fontWeight:500}}>{dashStats.topCreator[0]}</div><div style={{fontSize:11,color:"#666"}}>{dashStats.topCreator[1]} emails</div></div>}
+            </div>
+          ):(
+            <>
+              <div style={{display:"flex",borderBottom:"0.5px solid #e2e2e2"}}>
+                {[["creators","Créateurs"],["history","Historique"],["profile","Profil"],["settings","Réglages"]].map(([k,l])=>(
+                  <button key={k} style={{flex:1,padding:"8px 2px",fontSize:10,fontWeight:500,color:ltab===k?"#6366f1":"#999",textAlign:"center",cursor:"pointer",background:"none",border:"none",borderBottom:`2px solid ${ltab===k?"#6366f1":"transparent"}`}} onClick={()=>setLtab(k)}>{l}</button>
+                ))}
+              </div>
+
+              {ltab==="creators"&&<div style={{flex:1,overflowY:"auto",padding:10,display:"flex",flexDirection:"column",gap:8}}>
+                {creators.map(cr=>(
+                  <div key={cr.id} style={{...G.card,cursor:"pointer"}} onClick={()=>loadCreator(cr)}>
+                    <div style={{fontSize:13,fontWeight:500,color:"#111"}}>{cr.name}</div>
+                    <div style={{fontSize:11,color:"#666",marginTop:2}}>{cr.niche}{cr.subs?` · ${cr.subs}`:""}</div>
+                    <div style={{display:"flex",gap:4,marginTop:6,flexWrap:"wrap"}}>{cr.views&&<span style={G.pill}>{cr.views}</span>}{cr.eng&&<span style={G.pill}>{cr.eng} eng.</span>}</div>
+                  </div>
+                ))}
+                {addingCreator?(
+                  <div style={{...G.card,display:"flex",flexDirection:"column",gap:6}}>
+                    {[["name","Nom *"],["niche","Niche"],["subs","Abonnés"],["views","Vues moy."],["eng","Engagement"],["audience","Audience"],["url","URL chaîne"]].map(([k,l])=>(
+                      <div key={k}><div style={{fontSize:11,color:"#666",marginBottom:3}}>{l}</div><input style={G.si} value={newC[k]} onChange={e=>setNewC(p=>({...p,[k]:e.target.value}))}/></div>
+                    ))}
+                    <div style={{display:"flex",gap:6}}>
+                      <button style={G.sb} onClick={()=>{if(!newC.name)return;setCreators(p=>[...p,{id:Date.now(),...newC}]);setNewC({name:"",niche:"",subs:"",views:"",eng:"",audience:"",url:""});setAddingCreator(false);}}>Sauvegarder</button>
+                      <button style={{...G.sb,background:"#eee",color:"#666"}} onClick={()=>setAddingCreator(false)}>Annuler</button>
+                    </div>
+                  </div>
+                ):<div style={{padding:8,borderRadius:8,border:"0.5px dashed #ccc",textAlign:"center",cursor:"pointer"}} onClick={()=>setAddingCreator(true)}><span style={{fontSize:11,color:"#999"}}>+ Ajouter un créateur</span></div>}
+              </div>}
+
+              {ltab==="history"&&<div style={{flex:1,overflowY:"auto",padding:10,display:"flex",flexDirection:"column",gap:8}}>
+                <input style={G.si} placeholder="Rechercher…" value={histSearch} onChange={e=>setHistSearch(e.target.value)}/>
+                {filteredHistory.length===0&&<div style={{fontSize:12,color:"#999",textAlign:"center",marginTop:16}}>Aucun résultat</div>}
+                {filteredHistory.map(h=>(
+                  <div key={h.id} style={{...G.card,cursor:"pointer"}} onClick={()=>{setResult(h);setResult2(null);setImproveEmail(h.email);setLtab("creators");setTimeout(()=>resultRef.current?.scrollIntoView({behavior:"smooth"}),100);}}>
+                    <div style={{fontSize:12,fontWeight:500,color:"#111"}}>{h.brand}{h.creator&&h.creator!=="–"?` × ${h.creator}`:""}</div>
+                    {h.contact&&<div style={{fontSize:10,color:"#888",marginTop:1}}>Contact : {h.contact}</div>}
+                    <div style={{display:"flex",gap:4,marginTop:5,flexWrap:"wrap",alignItems:"center"}}>
+                      <span style={G.pill}>{h.sequence}</span><span style={G.pill}>{h.tone}</span>
+                      {h.lang==="en"&&<span style={{...G.pill,background:"#eff6ff",color:"#3b82f6"}}>EN</span>}
+                      {h.improved&&<span style={{...G.pill,background:"#f0fdf4",color:"#22c55e"}}>Amélioré</span>}
+                      <span style={{marginLeft:"auto",fontSize:10,color:"#bbb"}}>{h.date} {h.time}</span>
+                    </div>
+                    <div style={{marginTop:6,display:"flex",gap:3,flexWrap:"wrap"}}>
+                      {STATUTS.map(s=><span key={s} onClick={e=>{e.stopPropagation();updateStatut(h.id,s);}} style={{fontSize:10,padding:"2px 5px",borderRadius:4,cursor:"pointer",background:h.statut===s?STATUT_COLORS[s]+"22":"#f0f0f0",color:h.statut===s?STATUT_COLORS[s]:"#999",border:`0.5px solid ${h.statut===s?STATUT_COLORS[s]:"#e2e2e2"}`,fontWeight:h.statut===s?500:400}}>{s}</span>)}
+                    </div>
+                  </div>
+                ))}
+                {history.length>0&&<button style={{...G.sb,background:"#fee",color:"#c00"}} onClick={()=>{if(window.confirm("Vider ?"))setHistory([]);}}>Vider l'historique</button>}
+              </div>}
+
+              {ltab==="profile"&&<div style={{flex:1,overflowY:"auto",padding:10,display:"flex",flexDirection:"column",gap:8}}>
+                {creatorName&&<button style={G.sb} onClick={generatePitch} disabled={pitchLoading}>{pitchLoading?<><div style={G.sp}/>Génération...</>:"Générer pitch créateur"}</button>}
+                {pitch&&<div style={G.card}><div style={{fontSize:11,fontWeight:500,color:"#6366f1",marginBottom:6}}>Pitch — {creatorName}</div><div style={{fontSize:11,color:"#333",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{pitch}</div><button style={{...G.sb,fontSize:10,padding:"4px 8px",marginTop:8}} onClick={()=>copyText(pitch,"pitch")}>{copied==="pitch"?"✓ Copié":"Copier"}</button></div>}
+                {savedAngles.length>0&&<><div style={{fontSize:11,fontWeight:500,color:"#999",textTransform:"uppercase",letterSpacing:"0.5px"}}>Angles sauvegardés</div>{savedAngles.map((a,i)=><div key={i} style={{...G.card,cursor:"pointer",display:"flex",justifyContent:"space-between"}} onClick={()=>setAngle(a)}><span style={{fontSize:11,color:"#333"}}>{a}</span><span style={{fontSize:10,color:"#ef4444"}} onClick={e=>{e.stopPropagation();setSavedAngles(p=>p.filter((_,j)=>j!==i));}}>✕</span></div>)}</>}
+              </div>}
+
+              {ltab==="settings"&&<div style={{flex:1,overflowY:"auto",padding:10,display:"flex",flexDirection:"column",gap:8}}>
+                <div style={{...G.card,display:"flex",flexDirection:"column",gap:6}}>
+                  <div style={{fontSize:11,fontWeight:500,color:"#666"}}>Clé API Anthropic</div>
+                  <input style={G.si} type="password" placeholder="sk-ant-api03-..." value={apiKeyInput} onChange={e=>setApiKeyInput(e.target.value)}/>
+                  <div style={{fontSize:10,color:"#999"}}>Sauvegardée localement.</div>
+                  <button style={G.sb} onClick={()=>setApiKey(apiKeyInput)}>Sauvegarder</button>
+                </div>
+                <div style={{...G.card,display:"flex",flexDirection:"column",gap:6}}>
+                  <div style={{fontSize:11,fontWeight:500,color:"#666"}}>Signature</div>
+                  <input style={G.si} value={sigName} onChange={e=>setSigName(e.target.value)}/>
+                  <input style={{...G.si,marginTop:4}} value={sigSub} onChange={e=>setSigSub(e.target.value)}/>
+                  <button style={G.sb} onClick={()=>setSig({name:sigName,sub:sigSub})}>Sauvegarder</button>
+                </div>
+              </div>}
+            </>
+          )}
+        </div>
+      )}
+
+      <div style={{display:"flex",flexDirection:"column",overflow:"hidden"}}>
+        <div style={{padding:"12px 20px",borderBottom:"0.5px solid #e2e2e2",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
+          <div style={{display:"flex",background:"#f8f8f8",borderRadius:8,padding:3,border:"0.5px solid #e2e2e2",gap:2}}>
+            {[["generate","✉️ Générer"],["improve","✏️ Améliorer"]].map(([k,l])=>(
+              <button key={k} style={{padding:"6px 14px",borderRadius:6,border:"none",fontSize:12,fontWeight:500,cursor:"pointer",background:mainMode===k?"#6366f1":"transparent",color:mainMode===k?"white":"#666"}} onClick={()=>setMainMode(k)}>{l}</button>
+            ))}
+          </div>
+          <div style={{display:"flex",gap:8,alignItems:"center"}}>
+            {!apiKey&&<span style={{fontSize:11,color:"#ef4444",background:"#fee",padding:"3px 8px",borderRadius:4}}>⚠ Clé API → Réglages</span>}
+            <button style={{fontSize:11,padding:"4px 10px",borderRadius:6,border:"0.5px solid #e2e2e2",background:"#f8f8f8",color:"#666",cursor:"pointer"}} onClick={resetForm}>Nouveau mail</button>
+            <button style={{fontSize:11,padding:"4px 10px",borderRadius:6,border:`0.5px solid ${batchMode?"#6366f1":"#e2e2e2"}`,background:batchMode?"#6366f1":"#fff",color:batchMode?"white":"#666",cursor:"pointer"}} onClick={()=>setBatchMode(o=>!o)}>{batchMode?"Mode normal":"Mode batch"}</button>
+          </div>
+        </div>
+
+        <div style={{flex:1,overflowY:"auto",padding:20,display:"flex",flexDirection:"column",gap:16}}>
+
+          {mainMode==="improve"&&(
+            <>
+              <div>
+                <div style={G.sec}><span>Mon email</span>{improveEmail&&<span style={{fontSize:10,color:"#6366f1",cursor:"pointer",fontWeight:400,textTransform:"none",letterSpacing:0}} onClick={()=>{setImproveEmail("");resetImprove();}}>Effacer</span>}</div>
+                <div style={{fontSize:12,color:"#666",marginBottom:8}}>Écris ou colle ton email. Si tu viens de générer, il est déjà pré-rempli.</div>
+                <textarea style={{...G.ta,minHeight:180,fontSize:13,lineHeight:1.8}} placeholder={"Objet : ...\n\nBonjour,\n\nTon email ici..."} value={improveEmail} onChange={e=>{setImproveEmail(e.target.value);resetImprove();}}/>
+                {improveEmail&&(
+                  <div style={{display:"flex",gap:10,marginTop:8,flexWrap:"wrap",alignItems:"center"}}>
+                    <span style={{fontSize:11,color:improveWc>120?"#ef4444":improveWc>80?"#f59e0b":"#22c55e"}}>{improveWc} mots {improveWc>120?"⚠":"✓"}</span>
+                    <span style={{fontSize:11,color:improveCTA?"#22c55e":"#ef4444"}}>{improveCTA?"CTA ✓":"CTA manquant ✗"}</span>
+                    <span style={{fontSize:11,color:improvePerso?"#22c55e":"#f59e0b"}}>{improvePerso?"Personnalisé ✓":"Peu personnalisé"}</span>
+                    {detectedWeak.length>0&&<span style={{fontSize:11,color:"#ef4444",cursor:"pointer",textDecoration:"underline"}} onClick={()=>setShowWeakPhrases(o=>!o)}>{detectedWeak.length} formule(s) faible(s) ⚠</span>}
+                  </div>
+                )}
+                {showWeakPhrases&&detectedWeak.length>0&&(
+                  <div style={{marginTop:8,background:"#fffbeb",border:"0.5px solid #fbbf24",borderRadius:8,padding:10}}>
+                    <div style={{fontSize:11,fontWeight:500,color:"#92400e",marginBottom:6}}>Formules à éviter :</div>
+                    {detectedWeak.map((p,i)=><div key={i} style={{marginBottom:6}}><mark style={{background:"#fef08a",borderRadius:3,padding:"1px 4px",fontSize:12,fontWeight:500}}>"{p.phrase}"</mark><div style={{fontSize:11,color:"#78350f",marginTop:2}}>{p.reason}</div></div>)}
+                    <div style={{fontSize:11,color:"#92400e",marginTop:8,fontWeight:500}}>Email avec surlignage :</div>
+                    <div style={{marginTop:6,background:"#fff",padding:10,borderRadius:6,border:"0.5px solid #fde68a"}}><HighlightedEmail text={improveEmail}/></div>
+                  </div>
+                )}
+              </div>
+
+              <div style={{display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+                <button style={{...G.sb,padding:"9px 18px",fontSize:13,opacity:improveEmail&&apiKey?1:0.5}} onClick={analyzeEmail} disabled={!improveEmail||!apiKey||analysisLoading}>
+                  {analysisLoading?<><div style={G.sp}/>Analyse…</>:"Analyser mon email"}
+                </button>
+                <label style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",fontSize:12,color:"#555"}}>
+                  <input type="checkbox" checked={useFormData} onChange={e=>setUseFormData(e.target.checked)} style={{cursor:"pointer"}}/>
+                  Utiliser données marque + créateur
+                </label>
+                {useFormData&&brandName&&<span style={{fontSize:11,color:"#6366f1",background:"#eef2ff",padding:"2px 8px",borderRadius:4}}>{brandName}{creatorName?` × ${creatorName}`:""}</span>}
+              </div>
+
+              {improveEmail&&(
+                <div>
+                  <div style={G.sec}>Outils de transformation</div>
+                  <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                    <button style={aBtn(false)} onClick={shortenFn} disabled={shortenLoading||!apiKey}>{shortenLoading?<><div style={G.spd}/>...</>:"Raccourcir"}</button>
+                    <div style={{position:"relative"}}>
+                      <button style={aBtn(false)} onClick={()=>setShowChangeTone(o=>!o)}>Changer le ton ▾</button>
+                      {showChangeTone&&(
+                        <div style={{position:"absolute",top:"100%",left:0,marginTop:4,background:"#fff",border:"0.5px solid #e2e2e2",borderRadius:8,padding:6,zIndex:10,minWidth:160,boxShadow:"0 4px 12px rgba(0,0,0,0.08)"}}>
+                          {["direct","chaleureux","premium","curieux"].map(t=>(
+                            <div key={t} style={{padding:"6px 10px",cursor:"pointer",borderRadius:6,fontSize:12,color:"#333"}} onClick={()=>{setShowChangeTone(false);changeToneFn(t);}}>
+                              {t.charAt(0).toUpperCase()+t.slice(1)}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <button style={aBtn(false)} onClick={suggestAngles} disabled={anglesLoading||!apiKey}>{anglesLoading?<><div style={G.spd}/>...</>:"Ajouter un angle"}</button>
+                    <button style={aBtn(false)} onClick={rewriteFullFn} disabled={rewriteFullLoading||!apiKey}>{rewriteFullLoading?<><div style={G.spd}/>...</>:"Réécrire avec mon style"}</button>
+                  </div>
+                </div>
+              )}
+
+              {shortenResult&&<div style={G.card}><div style={{fontSize:11,fontWeight:500,color:"#6366f1",marginBottom:8}}>Version raccourcie</div><div style={{fontSize:13,color:"#111",lineHeight:1.75,whiteSpace:"pre-wrap"}}>{shortenResult}</div><div style={{fontSize:10,color:"#bbb",marginTop:4}}>{wc(extractBody(shortenResult))} mots</div><div style={{display:"flex",gap:6,marginTop:8}}><span style={aBtn(true,true)} onClick={()=>copyText(shortenResult,"shorten")}>{copied==="shorten"?"✓ Copié":"Copier"}</span><span style={aBtn(false,true)} onClick={()=>{setImproveEmail(shortenResult);resetImprove();}}>Utiliser comme base</span></div></div>}
+
+              {toneResult&&<div style={G.card}><div style={{fontSize:11,fontWeight:500,color:"#6366f1",marginBottom:8}}>Ton "{changeToneTarget}"</div>{!toneLoading&&<><div style={{fontSize:13,color:"#111",lineHeight:1.75,whiteSpace:"pre-wrap"}}>{toneResult}</div><div style={{display:"flex",gap:6,marginTop:8}}><span style={aBtn(true,true)} onClick={()=>copyText(toneResult,"tone")}>{copied==="tone"?"✓ Copié":"Copier"}</span><span style={aBtn(false,true)} onClick={()=>{setImproveEmail(toneResult);resetImprove();}}>Utiliser comme base</span></div></>}</div>}
+
+              {anglesSuggestions.length>0&&(
+                <div style={G.card}>
+                  <div style={{fontSize:11,fontWeight:500,color:"#6366f1",marginBottom:10}}>3 angles proposés</div>
+                  <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                    {anglesSuggestions.map((a,i)=>(
+                      <div key={i} style={{padding:10,borderRadius:8,border:`0.5px solid ${selectedAngle===i?"#6366f1":"#e2e2e2"}`,background:selectedAngle===i?"#eef2ff":"#f8f8f8",cursor:"pointer"}} onClick={()=>setSelectedAngle(selectedAngle===i?null:i)}>
+                        <div style={{fontSize:12,fontWeight:500,color:selectedAngle===i?"#6366f1":"#111"}}>{a.titre}</div>
+                        <div style={{fontSize:11,color:"#666",marginTop:2}}>{a.description}</div>
+                        <div style={{fontSize:11,color:"#999",marginTop:4,fontStyle:"italic"}}>Accroche : "{a.exemple_accroche}"</div>
+                        {selectedAngle===i&&<button style={{...G.sb,marginTop:8,fontSize:11,padding:"5px 12px"}} onClick={e=>{e.stopPropagation();rewriteWithAngle(a);}} disabled={angleRewriteLoading}>{angleRewriteLoading?<><div style={G.sp}/>Réécriture…</>:"Réécrire avec cet angle"}</button>}
+                      </div>
+                    ))}
+                  </div>
+                  {angleRewriteResult&&<div style={{marginTop:10}}><div style={{fontSize:11,fontWeight:500,color:"#6366f1",marginBottom:6}}>Email réécrit avec l'angle</div><div style={{fontSize:13,color:"#111",lineHeight:1.75,whiteSpace:"pre-wrap"}}>{angleRewriteResult}</div><div style={{display:"flex",gap:6,marginTop:8}}><span style={aBtn(true,true)} onClick={()=>copyText(angleRewriteResult,"anglerewrite")}>{copied==="anglerewrite"?"✓ Copié":"Copier"}</span><span style={aBtn(false,true)} onClick={()=>{setImproveEmail(angleRewriteResult);resetImprove();}}>Utiliser comme base</span></div></div>}
+                </div>
+              )}
+
+              {rewrittenFull&&<div style={G.card}><div style={{fontSize:11,fontWeight:500,color:"#6366f1",marginBottom:8}}>Réécrit avec ton style</div><div style={{fontSize:13,color:"#111",lineHeight:1.75,whiteSpace:"pre-wrap"}}>{rewrittenFull}</div><div style={{display:"flex",gap:6,marginTop:8}}><span style={aBtn(true,true)} onClick={()=>copyText(rewrittenFull,"rfull")}>{copied==="rfull"?"✓ Copié":"Copier"}</span><span style={aBtn(false,true)} onClick={()=>{setImproveEmail(rewrittenFull);resetImprove();}}>Utiliser comme base</span><span style={aBtn(false,true)} onClick={()=>{saveEntry(rewrittenFull,{improved:true});alert("Sauvegardé !");}}>Sauvegarder</span></div></div>}
+
+              {analysis&&!analysis.error&&(
+                <>
+                  <div style={{display:"flex",alignItems:"center",gap:10}}><div style={{flex:1,height:1,background:"#e2e2e2"}}/><div style={{fontSize:11,fontWeight:500,color:"#999",textTransform:"uppercase",letterSpacing:"0.5px"}}>Analyse</div><div style={{flex:1,height:1,background:"#e2e2e2"}}/></div>
+                  <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+                    <div style={{...G.card,flex:1,textAlign:"center"}}><div style={{fontSize:26,fontWeight:700,color:analysis.note>=7?"#22c55e":analysis.note>=5?"#f59e0b":"#ef4444"}}>{analysis.note}/10</div><div style={{fontSize:11,color:"#666"}}>Note globale</div></div>
+                    {persoScore!==null&&<div style={{...G.card,flex:1,textAlign:"center"}}><div style={{fontSize:26,fontWeight:700,color:persoScore>=7?"#22c55e":persoScore>=5?"#f59e0b":"#ef4444"}}>{persoScore}/10</div><div style={{fontSize:11,color:"#666"}}>Personnalisation</div></div>}
+                    {readability&&<div style={{...G.card,flex:1}}><div style={{fontSize:10,fontWeight:500,color:"#999",marginBottom:6}}>Lisibilité</div>{[["Longueur",readability.longueur],["Densité",readability.densite],["Formalité",readability.formalite]].map(([k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:3}}><span style={{color:"#666"}}>{k}</span><span style={{fontWeight:500,color:v==="ok"?"#22c55e":"#f59e0b"}}>{v}</span></div>)}{readability.suggestion&&<div style={{fontSize:10,color:"#6366f1",marginTop:6}}>{readability.suggestion}</div>}</div>}
+                  </div>
+                  {analysis.points_forts?.length>0&&<div style={G.card}><div style={{fontSize:11,fontWeight:500,color:"#22c55e",marginBottom:8}}>Points forts</div>{analysis.points_forts.map((p,i)=><div key={i} style={{marginBottom:8}}><div style={{fontSize:12,color:"#333",fontWeight:500}}>✓ {p.texte}</div><div style={{fontSize:11,color:"#666",marginTop:2}}>{p.explication}</div></div>)}</div>}
+                  {analysis.points_faibles?.length>0&&<div style={G.card}><div style={{fontSize:11,fontWeight:500,color:"#ef4444",marginBottom:8}}>Points faibles</div>{analysis.points_faibles.map((p,i)=><div key={i} style={{marginBottom:14,paddingBottom:14,borderBottom:i<analysis.points_faibles.length-1?"0.5px solid #f0f0f0":"none"}}><div style={{fontSize:12,color:"#333",fontWeight:500}}>✗ {p.texte}</div><div style={{fontSize:11,color:"#666",marginTop:3,marginBottom:8}}>{p.explication}</div>{p.passage&&<div style={{fontSize:11,color:"#888",background:"#fef2f2",padding:"6px 10px",borderRadius:6,borderLeft:"2px solid #ef4444",marginBottom:8,fontStyle:"italic"}}>"{p.passage}"</div>}{rewrittenPassages[i]?<div style={{background:"#f0fdf4",padding:"8px 10px",borderRadius:6,borderLeft:"2px solid #22c55e"}}><div style={{fontSize:10,fontWeight:500,color:"#22c55e",marginBottom:4}}>Reformulé :</div><div style={{fontSize:12,color:"#333",lineHeight:1.6}}>{rewrittenPassages[i]}</div><span style={{...aBtn(false,true),marginTop:8,display:"inline-flex"}} onClick={()=>copyText(rewrittenPassages[i],`rp${i}`)}>{copied===`rp${i}`?"✓ Copié":"Copier"}</span></div>:p.passage&&<button style={{...G.sb,fontSize:11,padding:"5px 12px",opacity:passageLoading[i]?0.7:1}} onClick={()=>rewritePassageFn(p.passage,i)} disabled={passageLoading[i]}>{passageLoading[i]?<><div style={G.sp}/>...</>:"Reformuler ce passage"}</button>}</div>)}</div>}
+                </>
+              )}
+
+              {improveEmail&&(
+                <div>
+                  <div style={G.sec}>Réécriture ciblée</div>
+                  <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                    <button style={aBtn(false)} onClick={getAltSubjectsFn} disabled={altSubjectsLoading||!apiKey}>{altSubjectsLoading?<><div style={G.spd}/>...</>:"5 objets alternatifs"}</button>
+                    <button style={aBtn(false)} onClick={getAltFirstLinesFn} disabled={firstLinesLoading||!apiKey}>{firstLinesLoading?<><div style={G.spd}/>...</>:"3 premières lignes"}</button>
+                    <button style={aBtn(false)} onClick={getAltCTAsFn} disabled={ctasLoading||!apiKey}>{ctasLoading?<><div style={G.spd}/>...</>:"3 CTA alternatifs"}</button>
+                  </div>
+                  {altSubjects.length>0&&<div style={{marginTop:10,...G.card}}><div style={{fontSize:11,fontWeight:500,color:"#555",marginBottom:8}}>5 objets alternatifs</div>{altSubjects.map((s,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 0",borderBottom:i<altSubjects.length-1?"0.5px solid #f0f0f0":"none"}}><span style={{fontSize:10,background:"#eef2ff",color:"#6366f1",padding:"1px 6px",borderRadius:4,flexShrink:0}}>{s.style}</span><span style={{fontSize:12,color:"#333",flex:1}}>{s.objet}</span><span style={aBtn(false,true)} onClick={()=>copyText(s.objet,`as${i}`)}>{copied===`as${i}`?"✓":"Copier"}</span></div>)}</div>}
+                  {altFirstLines.length>0&&<div style={{marginTop:10,...G.card}}><div style={{fontSize:11,fontWeight:500,color:"#555",marginBottom:8}}>3 premières lignes alternatives</div>{altFirstLines.map((l,i)=><div key={i} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"6px 0",borderBottom:i<altFirstLines.length-1?"0.5px solid #f0f0f0":"none"}}><span style={{fontSize:10,background:"#f0fdf4",color:"#22c55e",padding:"1px 6px",borderRadius:4,flexShrink:0,marginTop:1}}>{i+1}</span><span style={{fontSize:12,color:"#333",flex:1,lineHeight:1.5}}>{l}</span><span style={aBtn(false,true)} onClick={()=>copyText(l,`fl${i}`)}>{copied===`fl${i}`?"✓":"Copier"}</span></div>)}</div>}
+                  {altCTAs.length>0&&<div style={{marginTop:10,...G.card}}><div style={{fontSize:11,fontWeight:500,color:"#555",marginBottom:8}}>3 CTA alternatifs</div>{altCTAs.map((c,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 0",borderBottom:i<altCTAs.length-1?"0.5px solid #f0f0f0":"none"}}><span style={{fontSize:12,color:"#333",flex:1}}>{c}</span><span style={aBtn(false,true)} onClick={()=>copyText(c,`cta${i}`)}>{copied===`cta${i}`?"✓":"Copier"}</span></div>)}</div>}
+                </div>
+              )}
+            </>
+          )}
+
+          {mainMode==="generate"&&(
+            <>
+              {batchMode?(
+                <>
+                  <div><div style={G.sec}>Plusieurs marques</div><textarea style={{...G.ta,minHeight:100}} placeholder={"NordVPN\nSquarespace\nGymshark"} value={batchBrands} onChange={e=>setBatchBrands(e.target.value)}/></div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}><Inp label="Créateur" placeholder="ex : Christophe Pauly" value={creatorName} onChange={setCreatorName}/><Inp label="Niche" placeholder="ex : finance perso" value={creatorNiche} onChange={setCreatorNiche}/></div>
+                  <button style={{width:"100%",padding:11,background:apiKey&&batchBrands.trim()?"#6366f1":"#ccc",color:"white",border:"none",borderRadius:8,fontSize:14,fontWeight:500,cursor:apiKey&&batchBrands.trim()?"pointer":"not-allowed"}} onClick={generateBatch} disabled={!apiKey||!batchBrands.trim()||batchLoading}>{batchLoading?<><div style={G.sp}/>Génération…</>:"Générer tous les emails"}</button>
+                  {batchResults.map((r,i)=><div key={i} style={{background:"#f8f8f8",borderRadius:12,border:"0.5px solid #e2e2e2",padding:16}}><div style={{fontSize:12,fontWeight:500,color:"#6366f1",marginBottom:6}}>{extractSubject(r.email)}</div><div style={{fontSize:12,color:"#333",lineHeight:1.7,whiteSpace:"pre-wrap",marginBottom:8}}>{extractBody(r.email)}</div><div style={{display:"flex",gap:6,flexWrap:"wrap"}}><span style={aBtn(true,true)} onClick={()=>copyText(r.email,`b${i}`)}>{copied===`b${i}`?"✓":"Copier tout"}</span><span style={aBtn(false,true)} onClick={()=>copyText(extractSubject(r.email),`bs${i}`)}>{copied===`bs${i}`?"✓":"Objet"}</span><span style={aBtn(false,true)} onClick={()=>copyText(extractBody(r.email),`bb${i}`)}>{copied===`bb${i}`?"✓":"Corps"}</span><span style={{...aBtn(false,true),color:"#6366f1",borderColor:"#6366f1"}} onClick={()=>{setImproveEmail(r.email);resetImprove();setMainMode("improve");}}>✏️ Améliorer</span></div></div>)}
+                </>
+              ):(
+                <>
+                  <div>
+                    <div style={G.sec}><span>La marque</span><button style={{fontSize:11,color:"#6366f1",background:"none",border:"none",cursor:"pointer",fontWeight:400}} onClick={getScore} disabled={scoringLoading||!brandName}>{scoringLoading?<><div style={G.spd}/>Analyse...</>:"Score de pertinence →"}</button></div>
+                    {scoring&&<div style={{background:"#f8f8f8",borderRadius:8,border:"0.5px solid #e2e2e2",padding:10,marginBottom:10}}><div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}><div style={{fontSize:22,fontWeight:700,color:scoring.score>=7?"#22c55e":scoring.score>=5?"#f59e0b":"#ef4444"}}>{scoring.score}/10</div><div style={{fontSize:12,color:"#333"}}>{scoring.verdict}</div></div>{scoring.points_forts?.length>0&&<div style={{fontSize:11,color:"#22c55e",marginBottom:3}}>✓ {scoring.points_forts.join(" · ")}</div>}{scoring.points_faibles?.length>0&&<div style={{fontSize:11,color:"#ef4444"}}>✗ {scoring.points_faibles.join(" · ")}</div>}</div>}
+                    <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}><Inp label="Nom *" placeholder="ex : NordVPN" value={brandName} onChange={setBrandName}/><Inp label="Secteur" placeholder="ex : Cybersécurité" value={brandSector} onChange={setBrandSector}/></div>
+                      <Inp label="Prénom du contact" placeholder="ex : Sophie (responsable partenariats)" value={brandContact} onChange={setBrandContact}/>
+                      <div>
+                        <div style={G.fl}>Site web</div>
+                        <div style={{display:"flex",gap:6}}><input style={{...G.fi,flex:1}} placeholder="nordvpn.com" value={brandUrl} onChange={e=>setBrandUrl(e.target.value)}/><button style={{padding:"0 12px",background:"#6366f1",color:"white",border:"none",borderRadius:8,fontSize:11,cursor:"pointer",flexShrink:0}} onClick={()=>analyzeUrl("brand")} disabled={isAnalyzing.brand}>{isAnalyzing.brand?<div style={G.sp}/>:"Analyser"}</button></div>
+                        <div style={{display:"flex",alignItems:"center",gap:8,marginTop:4}}><span style={{fontSize:10,color:"#3b82f6"}}>Analyse auto : positionnement, ton, cible</span><span style={{...aBtn(false,true),opacity:brandAnalysis?1:0.4,cursor:brandAnalysis?"pointer":"default"}} onClick={()=>brandAnalysis&&setShowBrandInfo(o=>!o)}><span style={{width:12,height:12,borderRadius:"50%",border:"1.5px solid currentColor",display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:8}}>i</span>{showBrandInfo?"Masquer":"Voir"}</span></div>
+                        <InfoPanel title={`Analyse — ${brandUrl}`} value={brandAnalysis} show={showBrandInfo} onToggle={()=>setShowBrandInfo(false)} onChange={setBrandAnalysis}/>
+                      </div>
+                      <div><div style={G.fl}>Notes <span style={{fontSize:10,color:"#999",fontWeight:400}}>— infos manuelles</span></div><textarea style={{...G.ta,minHeight:56}} placeholder="ex : viennent de lancer une appli…" value={brandNotes} onChange={e=>setBrandNotes(e.target.value)}/></div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div style={G.sec}><span>Le créateur <span style={{fontSize:10,color:"#999",fontWeight:400,textTransform:"none",letterSpacing:0}}>— ponctuel ou régulier</span></span>{creatorName&&<span style={{fontSize:11,color:"#6366f1",cursor:"pointer",fontWeight:400,textTransform:"none",letterSpacing:0}} onClick={()=>{if(window.confirm("Sauvegarder ?"))setCreators(p=>[...p,{id:Date.now(),name:creatorName,niche:creatorNiche,subs:creatorSubs,views:creatorViews,eng:creatorEng,audience:creatorAudience,url:creatorUrlRaw}]);}}>+ Sauvegarder</span>}</div>
+                    <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}><Inp label="Nom / chaîne" placeholder="ex : Christophe Pauly" value={creatorName} onChange={setCreatorName}/><Inp label="Niche" placeholder="ex : finance perso" value={creatorNiche} onChange={setCreatorNiche}/></div>
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}><Inp label="Abonnés" placeholder="ex : 120k" value={creatorSubs} onChange={setCreatorSubs}/><Inp label="Vues moyennes" placeholder="ex : 80k/vidéo" value={creatorViews} onChange={setCreatorViews}/></div>
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}><Inp label="Engagement" placeholder="ex : 6%" value={creatorEng} onChange={setCreatorEng}/><Inp label="Audience cible" placeholder="ex : CSP+ 25-40 ans" value={creatorAudience} onChange={setCreatorAudience}/></div>
+                      <div>
+                        <div style={G.fl}>URL chaîne <span style={{fontSize:10,color:"#999",fontWeight:400}}>— analyse auto</span></div>
+                        <div style={{display:"flex",gap:6}}><input style={{...G.fi,flex:1}} placeholder="youtube.com/@ChristophePauly" value={creatorUrlRaw} onChange={e=>setCreatorUrlRaw(e.target.value)}/><button style={{padding:"0 12px",background:"#6366f1",color:"white",border:"none",borderRadius:8,fontSize:11,cursor:"pointer",flexShrink:0}} onClick={()=>analyzeUrl("creator")} disabled={isAnalyzing.creator}>{isAnalyzing.creator?<div style={G.sp}/>:"Analyser"}</button></div>
+                        <div style={{display:"flex",alignItems:"center",gap:8,marginTop:4}}><span style={{fontSize:10,color:"#3b82f6"}}>Complète ou remplace les champs</span><span style={{...aBtn(false,true),opacity:creatorAnalysis?1:0.4,cursor:creatorAnalysis?"pointer":"default"}} onClick={()=>creatorAnalysis&&setShowCreatorInfo(o=>!o)}><span style={{width:12,height:12,borderRadius:"50%",border:"1.5px solid currentColor",display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:8}}>i</span>{showCreatorInfo?"Masquer":"Voir"}</span></div>
+                        <InfoPanel title={`Analyse — ${creatorUrlRaw}`} value={creatorAnalysis} show={showCreatorInfo} onToggle={()=>setShowCreatorInfo(false)} onChange={setCreatorAnalysis}/>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div style={G.sec}>Objectif & séquence</div>
+                    <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                      <Inp label="Pourquoi tu contactes cette marque ?" placeholder="ex : Proposition de collaboration sponsoring" value={objectif} onChange={setObjectif}/>
+                      <div>
+                        <div style={G.fl}>Angle <span style={{float:"right",display:"inline-flex",gap:8}}>{angle&&<span style={{fontSize:10,color:"#6366f1",cursor:"pointer",fontWeight:400}} onClick={()=>{if(!savedAngles.includes(angle))setSavedAngles(p=>[...p,angle]);}}>+ Sauvegarder</span>}{savedAngles.length>0&&<span style={{fontSize:10,color:"#6366f1",cursor:"pointer",fontWeight:400}} onClick={()=>setShowAngles(o=>!o)}>Biblio ({savedAngles.length})</span>}</span></div>
+                        <input style={G.fi} placeholder="ex : audience finance = cible parfaite pour un outil d'épargne" value={angle} onChange={e=>setAngle(e.target.value)}/>
+                        {showAngles&&savedAngles.length>0&&<div style={{marginTop:6,display:"flex",flexDirection:"column",gap:4}}>{savedAngles.map((a,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:6,padding:"5px 8px",background:"#f8f8f8",borderRadius:6,border:"0.5px solid #e2e2e2",cursor:"pointer"}} onClick={()=>{setAngle(a);setShowAngles(false);}}><span style={{fontSize:11,color:"#333",flex:1}}>{a}</span><span style={{fontSize:10,color:"#ef4444"}} onClick={e=>{e.stopPropagation();setSavedAngles(p=>p.filter((_,j)=>j!==i));}}>✕</span></div>)}</div>}
+                      </div>
+                      <Inp label="Why now" sub="— raison de contacter aujourd'hui" placeholder="ex : vous venez de lancer une offre…" value={whyNow} onChange={setWhyNow}/>
+                      <Inp label="Preuve" sub="— résultat ou crédibilité concrète" placeholder="ex : 3 200 ventes générées pour une marque similaire" value={preuve} onChange={setPreuve}/>
+                      <div>
+                        <div style={G.fl}>Étape de séquence</div>
+                        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                          <div style={{padding:"8px 12px",borderRadius:8,border:`0.5px solid ${sequence==="premier_contact"?"#6366f1":"#e2e2e2"}`,cursor:"pointer",background:sequence==="premier_contact"?"#eef2ff":"#f8f8f8"}} onClick={()=>setSequence("premier_contact")}><div style={{fontSize:11,fontWeight:500,color:sequence==="premier_contact"?"#6366f1":"#555"}}>1er contact</div></div>
+                          {customSequences.map(s=><div key={s.id} style={{padding:"8px 12px",borderRadius:8,border:`0.5px solid ${sequence===s.id?"#6366f1":"#e2e2e2"}`,cursor:"pointer",background:sequence===s.id?"#eef2ff":"#f8f8f8",display:"flex",alignItems:"center",gap:6}} onClick={()=>setSequence(s.id)}><div style={{fontSize:11,fontWeight:500,color:sequence===s.id?"#6366f1":"#555"}}>{s.text}</div><span style={{fontSize:10,color:"#ccc"}} onClick={e=>{e.stopPropagation();setCustomSequences(p=>p.filter(x=>x.id!==s.id));if(sequence===s.id)setSequence("premier_contact");}}>✕</span></div>)}
+                          {addingSeq?(
+                            <div style={{display:"flex",gap:6,alignItems:"center",flex:1,minWidth:200}}>
+                              <input style={{...G.fi,flex:1,fontSize:11,padding:"7px 10px"}} placeholder="ex : Suite à notre appel…" value={newSeqText} onChange={e=>setNewSeqText(e.target.value)} autoFocus onKeyDown={e=>{if(e.key==="Enter"&&newSeqText.trim()){const id=Date.now().toString();setCustomSequences(p=>[...p,{id,text:newSeqText.trim()}]);setSequence(id);setNewSeqText("");setAddingSeq(false);}if(e.key==="Escape"){setAddingSeq(false);setNewSeqText("");}}}/>
+                              <button style={{...G.sb,padding:"7px 10px",fontSize:11}} onClick={()=>{if(newSeqText.trim()){const id=Date.now().toString();setCustomSequences(p=>[...p,{id,text:newSeqText.trim()}]);setSequence(id);setNewSeqText("");setAddingSeq(false);}}}>OK</button>
+                              <button style={{...G.sb,background:"#eee",color:"#666",padding:"7px 10px",fontSize:11}} onClick={()=>{setAddingSeq(false);setNewSeqText("");}}>✕</button>
+                            </div>
+                          ):<div style={{padding:"8px 12px",borderRadius:8,border:"0.5px dashed #ccc",cursor:"pointer",color:"#999",fontSize:11}} onClick={()=>setAddingSeq(true)}>+ Ajouter</div>}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div style={G.sec}>Ton rédactionnel</div>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:6}}>
+                      {TONES.map(t=><div key={t.value} style={{padding:"8px 4px",borderRadius:8,border:`0.5px solid ${tone===t.value?"#6366f1":"#e2e2e2"}`,textAlign:"center",cursor:"pointer",background:tone===t.value?"#eef2ff":"#f8f8f8"}} onClick={()=>setTone(t.value)}><div style={{fontSize:10,fontWeight:500,color:tone===t.value?"#6366f1":"#111"}}>{t.label}</div><div style={{fontSize:9,color:"#999",marginTop:1}}>{t.desc}</div></div>)}
+                    </div>
+                    {tone==="custom"&&<div style={{marginTop:8}}><div style={G.fl}>Décris ton style</div><input style={G.fi} placeholder='ex : décontracté mais pro, comme si je parlais à un pote dans le business' value={customTone} onChange={e=>setCustomTone(e.target.value)}/></div>}
+                  </div>
+
+                  <div style={{display:"flex",gap:8}}>
+                    <button style={{flex:1,padding:11,background:canGenerate?"#6366f1":"#ccc",color:"white",border:"none",borderRadius:8,fontSize:14,fontWeight:500,cursor:canGenerate?"pointer":"not-allowed"}} onClick={()=>generate()} disabled={!canGenerate}>{isLoading?<><div style={G.sp}/>Génération…</>:"Générer l'email"}</button>
+                    <button style={{padding:"0 14px",background:canGenerate?"#4f46e5":"#ccc",color:"white",border:"none",borderRadius:8,fontSize:12,fontWeight:500,cursor:canGenerate?"pointer":"not-allowed"}} onClick={generateAB} disabled={!canGenerate}>{isAbLoading?<div style={G.sp}/>:"A/B"}</button>
+                  </div>
+
+                  {result&&(
+                    <>
+                      <div style={{display:"flex",alignItems:"center",gap:10}}><div style={{flex:1,height:1,background:"#e2e2e2"}}/><div style={{fontSize:11,fontWeight:500,color:"#999",textTransform:"uppercase",letterSpacing:"0.5px"}}>{result2?"Résultat A/B":"Résultat"}</div><div style={{flex:1,height:1,background:"#e2e2e2"}}/></div>
+                      <div style={{display:"flex",gap:12,flexDirection:result2?"row":"column"}}>
+                        {[result,result2].filter(Boolean).map((r,idx)=><ResultBlock key={idx} r={r} idx={idx}/>)}
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
+            </>
+          )}
+          <div style={{height:20}}/>
         </div>
       </div>
-    `).join('');
-  }
+    </div>
+  );
+}
 
-  function toggleHist(id) {
-    const body = document.getElementById('hbody' + id);
-    body.className = body.className.includes('open') ? 'hist-body' : 'hist-body open';
-  }
-
-  async function copyHist(id) {
-    const entry = state.history.find(e => e.id === id);
-    if (!entry) return;
-    await navigator.clipboard.writeText(entry.email);
-    const btn = document.getElementById('hcopy' + id);
-    btn.className = 'hist-copy-btn copied'; btn.textContent = '✅ Copié';
-    setTimeout(() => { btn.className = 'hist-copy-btn'; btn.textContent = '📋 Copier'; }, 2000);
-  }
-
-  function deleteHist(id) {
-    state.history = state.history.filter(e => e.id !== id);
-    renderHistory();
-  }
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
