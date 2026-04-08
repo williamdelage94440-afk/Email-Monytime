@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monytime – Prospection Email</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Monytime" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+      color: white;
+      padding: 24px 16px 48px;
+    }
+    .container { max-width: 680px; margin: 0 auto; }
+
+    /* Header */
+    .header { text-align: center; margin-bottom: 28px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 14px; padding: 10px 18px; margin-bottom: 14px;
+      box-shadow: 0 8px 32px rgba(99,102,241,0.3);
+      font-weight: 700; font-size: 15px; letter-spacing: 1px;
+    }
+    h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+    .subtitle { color: #94a3b8; font-size: 13px; }
+
+    /* Tabs */
+    .tabs {
+      display: flex; gap: 6px; margin-bottom: 20px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px; padding: 5px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .tab {
+      flex: 1; padding: 10px; border-radius: 8px; border: none;
+      font-weight: 700; font-size: 14px; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab.active { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
+    .tab.inactive { background: transparent; color: #64748b; }
+
+    /* API Key banner */
+    .api-banner {
+      background: rgba(234,179,8,0.1); border: 1px solid rgba(234,179,8,0.3);
+      border-radius: 12px; padding: 14px 16px; margin-bottom: 20px;
+      font-size: 13px; color: #fbbf24;
+      display: flex; align-items: flex-start; gap: 10;
+    }
+    .api-banner input {
+      width: 100%; margin-top: 8px; background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(234,179,8,0.4); border-radius: 8px;
+      padding: 9px 12px; color: white; font-size: 13px; outline: none;
+      font-family: monospace;
+    }
+
+    /* Cards */
+    .card {
+      background: rgba(255,255,255,0.05); border-radius: 16px;
+      padding: 20px; border: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 13px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: #e2e8f0; margin-bottom: 14px;
+    }
+    label { color: #94a3b8; font-size: 13px; display: block; margin-bottom: 5px; margin-top: 10px; }
+    label:first-of-type { margin-top: 0; }
+    input, textarea {
+      width: 100%; background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
+      padding: 10px 13px; color: white; font-size: 14px; outline: none;
+      font-family: inherit;
+    }
+    textarea { resize: vertical; }
+
+    /* Grid buttons */
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .grid1 { display: flex; flex-direction: column; gap: 8px; }
+    .opt-btn {
+      padding: 11px 12px; border-radius: 10px; cursor: pointer;
+      font-size: 13px; font-weight: 600; transition: all 0.15s;
+      text-align: left; border: 2px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.03); color: #94a3b8;
+    }
+    .opt-btn.selected {
+      border-color: #6366f1; background: rgba(99,102,241,0.2); color: #a5b4fc;
+    }
+    .tone-btn {
+      padding: 12px 14px; border-radius: 10px; cursor: pointer;
+      font-size: 13px; transition: all 0.15s; text-align: left;
+      border: 2px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.03); color: white;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .tone-btn.selected { border-color: #6366f1; background: rgba(99,102,241,0.15); }
+    .tone-desc { color: #64748b; font-size: 12px; }
+
+    /* Collapsible */
+    .collapse-btn {
+      width: 100%; padding: 14px 20px; background: none; border: none;
+      color: #94a3b8; font-size: 14px; font-weight: 600; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .collapse-content { padding: 0 20px 20px; display: none; }
+    .collapse-content.open { display: block; }
+
+    /* Generate button */
+    .gen-btn {
+      width: 100%; padding: 15px; border: none; border-radius: 14px;
+      font-size: 16px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: all 0.2s; margin-bottom: 16px;
+    }
+    .gen-btn.ready {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white;
+      box-shadow: 0 8px 32px rgba(99,102,241,0.35);
+    }
+    .gen-btn.disabled { background: rgba(255,255,255,0.1); color: #475569; cursor: not-allowed; }
+
+    /* Result */
+    .result-card {
+      background: rgba(255,255,255,0.04); border-radius: 12px;
+      padding: 18px 20px; border: 1px solid rgba(255,255,255,0.06);
+      white-space: pre-wrap; font-size: 14px; line-height: 1.75; color: #cbd5e1;
+    }
+    .result-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 14px;
+    }
+    .copy-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 13px; border-radius: 8px; cursor: pointer;
+      font-size: 13px; font-weight: 600; transition: all 0.2s;
+      border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.08); color: #94a3b8;
+    }
+    .copy-btn.copied { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.4); color: #4ade80; }
+    .empty-state {
+      text-align: center; padding: 48px 20px; color: #475569;
+    }
+    .empty-state p { margin-top: 12px; font-size: 14px; }
+
+    /* Spinner */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3); border-top-color: white;
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* History */
+    .hist-item {
+      background: rgba(255,255,255,0.05); border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08); margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .hist-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 16px; cursor: pointer;
+    }
+    .hist-info { flex: 1; }
+    .hist-title { font-weight: 700; font-size: 14px; color: white; }
+    .hist-meta { font-size: 12px; color: #64748b; margin-top: 3px; }
+    .tag {
+      display: inline-block; padding: 3px 8px; border-radius: 6px;
+      font-size: 11px; font-weight: 600; margin-right: 4px;
+    }
+    .tag-purple { background: rgba(99,102,241,0.2); color: #a5b4fc; }
+    .tag-violet { background: rgba(139,92,246,0.15); color: #c4b5fd; }
+    .hist-actions { display: flex; gap: 6px; align-items: center; }
+    .hist-copy-btn {
+      display: flex; align-items: center; gap: 4px; padding: 6px 10px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 7px; color: #94a3b8; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .hist-copy-btn.copied { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.3); color: #4ade80; }
+    .hist-del-btn {
+      display: flex; align-items: center; padding: 6px 8px;
+      background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 7px; color: #f87171; cursor: pointer;
+    }
+    .hist-body { border-top: 1px solid rgba(255,255,255,0.06); padding: 16px; display: none; }
+    .hist-body.open { display: block; }
+    .hist-body pre { white-space: pre-wrap; font-family: inherit; font-size: 14px; line-height: 1.75; color: #cbd5e1; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="badge">✉️ MONYTIME</div>
+    <h1>Générateur de prospection</h1>
+    <p class="subtitle">Démarche les marques pour des placements YouTube</p>
+  </div>
+
+  <!-- API Key -->
+  <div class="api-banner">
+    <div style="flex:1">
+      <strong>🔑 Clé API Anthropic requise</strong>
+      <input type="password" id="apiKey" placeholder="sk-ant-api03-..." />
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('form', this)">✍️ Composer</button>
+    <button class="tab inactive" id="histTab" onclick="switchTab('history', this)">🕓 Historique (0)</button>
+  </div>
+
+  <!-- FORM TAB -->
+  <div id="formTab">
+
+    <!-- Marque -->
+    <div class="card">
+      <div class="card-title">🎯 La marque</div>
+      <label>Nom de la marque *</label>
+      <input type="text" id="brandName" placeholder="ex : NordVPN, Squarespace, Gymshark…" />
+      <label>Secteur / produit</label>
+      <input type="text" id="brandSector" placeholder="ex : VPN, e-commerce, nutrition sportive…" />
+    </div>
+
+    <!-- Créateur -->
+    <div class="card">
+      <div class="card-title">🎬 Le créateur</div>
+      <label>Nom de la chaîne *</label>
+      <input type="text" id="creatorName" placeholder="ex : Christophe Pauly" />
+      <label>Niche / thématique</label>
+      <input type="text" id="creatorNiche" placeholder="ex : finance perso, fitness, entrepreneuriat…" />
+      <label>Stats clés</label>
+      <input type="text" id="creatorStats" placeholder="ex : 120k abonnés, 80k vues/vidéo, 6% engagement" />
+    </div>
+
+    <!-- Objectif -->
+    <div class="card">
+      <div class="card-title">📌 Objectif</div>
+      <div class="grid2" id="objectifGrid">
+        <button class="opt-btn selected" onclick="selectOpt('objectif', this, 'premier_contact')">1er contact froid</button>
+        <button class="opt-btn" onclick="selectOpt('objectif', this, 'relance')">Relance (pas de réponse)</button>
+        <button class="opt-btn" onclick="selectOpt('objectif', this, 'suite_appel')">Suite à un appel</button>
+        <button class="opt-btn" onclick="selectOpt('objectif', this, 'envoi_media_kit')">Envoi media kit</button>
+      </div>
+    </div>
+
+    <!-- Ton -->
+    <div class="card">
+      <div class="card-title">✨ Ton rédactionnel</div>
+      <div class="grid1" id="toneGrid">
+        <button class="tone-btn selected" onclick="selectOpt('tone', this, 'direct')">
+          <span>Direct & percutant</span><span class="tone-desc">Court, clair, orienté résultat</span>
+        </button>
+        <button class="tone-btn" onclick="selectOpt('tone', this, 'chaleureux')">
+          <span>Chaleureux & humain</span><span class="tone-desc">Approche relationnelle</span>
+        </button>
+        <button class="tone-btn" onclick="selectOpt('tone', this, 'premium')">
+          <span>Premium & exclusif</span><span class="tone-desc">Ton haut de gamme, partenariat sélectif</span>
+        </button>
+        <button class="tone-btn" onclick="selectOpt('tone', this, 'curieux')">
+          <span>Curieux & ouvert</span><span class="tone-desc">Invitation à un échange, pas de pression</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="card" style="padding:0; overflow:hidden;">
+      <button class="collapse-btn" onclick="toggleCollapse()">
+        <span>Notes supplémentaires (optionnel)</span>
+        <span id="collapseIcon">▼</span>
+      </button>
+      <div class="collapse-content" id="collapseContent">
+        <textarea id="notes" rows="3" placeholder="Infos spécifiques : ancienne collab, angle particulier, contact précis…"></textarea>
+      </div>
+    </div>
+
+    <!-- Bouton générer -->
+    <button class="gen-btn disabled" id="genBtn" onclick="generate()">
+      <span>✉️</span> Générer l'email
+    </button>
+
+    <!-- Résultat -->
+    <div class="card" id="resultSection" style="display:none;">
+      <div class="result-header">
+        <div class="card-title" style="margin:0">📧 Email généré</div>
+        <button class="copy-btn" id="copyBtn" onclick="copyResult()">
+          <span>📋</span> Copier
+        </button>
+      </div>
+      <div class="result-card" id="resultText"></div>
+    </div>
+
+    <div class="card empty-state" id="emptyState">
+      <div style="font-size:40px">✉️</div>
+      <p style="font-weight:600; color:#64748b">L'email apparaîtra ici</p>
+      <p style="color:#475569; font-size:13px">Remplis la marque et le créateur, puis génère.</p>
+    </div>
+
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div id="historyTab" style="display:none;">
+    <div id="histEmpty" class="card empty-state">
+      <div style="font-size:40px">🕓</div>
+      <p style="font-weight:600; color:#64748b">Aucun email généré</p>
+      <p style="color:#475569; font-size:13px">Les emails générés apparaîtront ici.</p>
+    </div>
+    <div id="histList"></div>
+  </div>
+
+</div>
+
+<script>
+  const state = {
+    objectif: 'premier_contact',
+    tone: 'direct',
+    history: [],
+    result: '',
+    collapseOpen: false,
+  };
+
+  // Sync inputs to enable/disable button
+  ['brandName','creatorName'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updateBtn);
+  });
+
+  function updateBtn() {
+    const b = document.getElementById('brandName').value.trim();
+    const c = document.getElementById('creatorName').value.trim();
+    const btn = document.getElementById('genBtn');
+    btn.className = 'gen-btn ' + (b && c ? 'ready' : 'disabled');
+  }
+
+  function selectOpt(group, el, val) {
+    state[group] = val;
+    const gridId = group === 'objectif' ? 'objectifGrid' : 'toneGrid';
+    const cls = group === 'objectif' ? 'opt-btn' : 'tone-btn';
+    document.querySelectorAll('#' + gridId + ' .' + cls).forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function toggleCollapse() {
+    state.collapseOpen = !state.collapseOpen;
+    document.getElementById('collapseContent').className = 'collapse-content' + (state.collapseOpen ? ' open' : '');
+    document.getElementById('collapseIcon').textContent = state.collapseOpen ? '▲' : '▼';
+  }
+
+  function switchTab(tab, el) {
+    document.querySelectorAll('.tab').forEach(t => { t.className = 'tab inactive'; });
+    el.className = 'tab active';
+    document.getElementById('formTab').style.display = tab === 'form' ? 'block' : 'none';
+    document.getElementById('historyTab').style.display = tab === 'history' ? 'block' : 'none';
+  }
+
+  async function generate() {
+    const apiKey = document.getElementById('apiKey').value.trim();
+    const brandName = document.getElementById('brandName').value.trim();
+    const creatorName = document.getElementById('creatorName').value.trim();
+    if (!brandName || !creatorName) return;
+    if (!apiKey) { alert('Entre ta clé API Anthropic d\'abord.'); return; }
+
+    const brandSector = document.getElementById('brandSector').value.trim();
+    const creatorNiche = document.getElementById('creatorNiche').value.trim();
+    const creatorStats = document.getElementById('creatorStats').value.trim();
+    const notes = document.getElementById('notes').value.trim();
+
+    const btn = document.getElementById('genBtn');
+    btn.innerHTML = '<div class="spinner"></div> Génération en cours…';
+    btn.className = 'gen-btn disabled';
+
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('resultSection').style.display = 'none';
+
+    const objectifLabels = {
+      premier_contact: '1er contact froid', relance: 'Relance (pas de réponse)',
+      suite_appel: 'Suite à un appel', envoi_media_kit: 'Envoi media kit'
+    };
+
+    const prompt = `Tu es un expert en prospection commerciale B2B pour une agence de marketing d'influence française appelée Monytime, spécialisée dans les placements de produit sur YouTube.
+
+Ton rôle : rédiger un email de prospection froid ultra-professionnel pour démarcher une marque et lui proposer un partenariat sponsoring avec un créateur YouTube que l'agence accompagne.
+
+Contexte :
+- Marque ciblée : ${brandName}
+- Secteur de la marque : ${brandSector || 'non précisé'}
+- Créateur proposé : ${creatorName}
+- Niche du créateur : ${creatorNiche || 'non précisée'}
+- Stats du créateur : ${creatorStats || 'non précisées'}
+- Objectif de l'email : ${state.objectif}
+- Ton souhaité : ${state.tone}
+${notes ? `- Notes supplémentaires : ${notes}` : ''}
+
+Rédige un email de prospection en français avec :
+1. Un objet d'email accrocheur (commence par "Objet : ")
+2. Une ligne de saut
+3. Le corps de l'email (commence directement par quelque chose d'impactant, pas de formule générique)
+4. Une signature type : William Delage – Monytime | Agence de sponsoring YouTube
+
+Règles :
+- Email court (max 150 mots pour le corps)
+- Zéro blabla
+- Orienté bénéfice pour la marque
+- Call-to-action clair en fin d'email
+- Voix naturelle, pas corporate
+
+Réponds avec UNIQUEMENT l'email. Rien d'autre.`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+      const data = await res.json();
+      const text = (data.content || []).map(b => b.text || '').join('').trim();
+      state.result = text;
+
+      document.getElementById('resultText').textContent = text;
+      document.getElementById('resultSection').style.display = 'block';
+
+      // Ajouter à l'historique
+      const entry = {
+        id: Date.now(),
+        brand: brandName, creator: creatorName,
+        objectif: objectifLabels[state.objectif],
+        tone: state.tone,
+        email: text,
+        time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+      };
+      state.history.unshift(entry);
+      renderHistory();
+
+    } catch(e) {
+      document.getElementById('resultText').textContent = 'Erreur : ' + e.message;
+      document.getElementById('resultSection').style.display = 'block';
+    }
+
+    btn.innerHTML = '<span>✉️</span> Générer l\'email';
+    updateBtn();
+  }
+
+  async function copyResult() {
+    await navigator.clipboard.writeText(state.result);
+    const btn = document.getElementById('copyBtn');
+    btn.className = 'copy-btn copied';
+    btn.innerHTML = '<span>✅</span> Copié !';
+    setTimeout(() => { btn.className = 'copy-btn'; btn.innerHTML = '<span>📋</span> Copier'; }, 2000);
+  }
+
+  function renderHistory() {
+    const list = document.getElementById('histList');
+    const empty = document.getElementById('histEmpty');
+    const tab = document.getElementById('histTab');
+    tab.textContent = `🕓 Historique (${state.history.length})`;
+
+    if (state.history.length === 0) { empty.style.display = 'block'; list.innerHTML = ''; return; }
+    empty.style.display = 'none';
+
+    list.innerHTML = state.history.map(e => `
+      <div class="hist-item">
+        <div class="hist-header" onclick="toggleHist(${e.id})">
+          <div class="hist-info">
+            <div class="hist-title">${e.brand} <span style="color:#64748b;font-weight:400">× ${e.creator}</span></div>
+            <div class="hist-meta" style="margin-top:6px">
+              <span class="tag tag-purple">${e.objectif}</span>
+              <span class="tag tag-violet">${e.tone}</span>
+            </div>
+          </div>
+          <div class="hist-actions">
+            <span style="color:#475569;font-size:12px;margin-right:4px">${e.time}</span>
+            <button class="hist-copy-btn" id="hcopy${e.id}" onclick="event.stopPropagation();copyHist(${e.id})">📋 Copier</button>
+            <button class="hist-del-btn" onclick="event.stopPropagation();deleteHist(${e.id})">🗑</button>
+          </div>
+        </div>
+        <div class="hist-body" id="hbody${e.id}">
+          <pre>${e.email}</pre>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function toggleHist(id) {
+    const body = document.getElementById('hbody' + id);
+    body.className = body.className.includes('open') ? 'hist-body' : 'hist-body open';
+  }
+
+  async function copyHist(id) {
+    const entry = state.history.find(e => e.id === id);
+    if (!entry) return;
+    await navigator.clipboard.writeText(entry.email);
+    const btn = document.getElementById('hcopy' + id);
+    btn.className = 'hist-copy-btn copied'; btn.textContent = '✅ Copié';
+    setTimeout(() => { btn.className = 'hist-copy-btn'; btn.textContent = '📋 Copier'; }, 2000);
+  }
+
+  function deleteHist(id) {
+    state.history = state.history.filter(e => e.id !== id);
+    renderHistory();
+  }
+</script>
+</body>
+</html>
